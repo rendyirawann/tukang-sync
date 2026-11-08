@@ -29,7 +29,21 @@ class DashboardAdminController extends Controller
             'breakdown' => $this->breakdown($isSuperadmin, $user),
             'recent' => $this->recent($isSuperadmin, $user),
             'topUsers' => $isSuperadmin ? $this->topUsers() : collect(),
+            'saas' => $isSuperadmin ? $this->saas() : null,
         ]);
+    }
+
+    /** Ringkasan bisnis SaaS untuk superadmin. */
+    private function saas(): array
+    {
+        return [
+            'aktif' => \App\Models\Team::where('status', 'aktif')->count(),
+            'menunggu' => \App\Models\TeamPayment::where('status', 'menunggu')->count(),
+            'habis' => \App\Models\Team::where('status', 'aktif')->where('lifetime', false)
+                ->where('aktif_sampai', '<', now())->count(),
+            'pendapatan' => (int) \App\Models\TeamPayment::where('status', 'diterima')
+                ->where('dikonfirmasi_pada', '>=', now()->startOfMonth())->sum('nominal'),
+        ];
     }
 
     /** Base activity query, narrowed to the current user unless Superadmin. */

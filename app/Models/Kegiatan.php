@@ -73,6 +73,14 @@ class Kegiatan extends Model
     // Relasi
     // ------------------------------------------------------------------
 
+    /** team_id sebuah kegiatan tanpa melewati scope tim (dipakai factory). */
+    public static function timDari(int|string|null $kegiatanId): ?int
+    {
+        $id = static::withoutGlobalScopes()->whereKey($kegiatanId)->value('team_id');
+
+        return $id === null ? null : (int) $id;
+    }
+
     public function bangunan(): HasMany
     {
         return $this->hasMany(Bangunan::class)->orderBy('urutan')->orderBy('id');

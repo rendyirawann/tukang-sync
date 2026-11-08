@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use App\Enums\StatusKegiatan;
 use App\Support\Izin;
+use App\Support\Tenancy\TimAktif;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -35,7 +36,7 @@ class KegiatanRequest extends FormRequest
 
         return [
             'nama' => [$required, 'string', 'max:150'],
-            'kode' => ['nullable', 'string', 'max:40', Rule::unique('kegiatan', 'kode')->ignore($id)->whereNull('deleted_at')],
+            'kode' => ['nullable', 'string', 'max:40', Rule::unique('kegiatan', 'kode')->ignore($id)->where('team_id', TimAktif::id())->whereNull('deleted_at')],
             'keterangan' => ['nullable', 'string', 'max:2000'],
             'lokasi' => ['nullable', 'string', 'max:150'],
             'sumber_dana' => ['nullable', 'string', 'max:100'],

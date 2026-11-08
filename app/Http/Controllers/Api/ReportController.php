@@ -13,6 +13,7 @@ use App\Models\CashFlow;
 use App\Models\Kegiatan;
 use App\Support\ApiResponse;
 use App\Support\Rupiah;
+use App\Support\Tenancy\TimAktif;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -197,7 +198,7 @@ class ReportController extends Controller
             'breakdown' => (new KegiatanResource($kegiatan))->withTaksasi()->resolve()['breakdown'],
             'kas' => $kas,
             'ringkasanKas' => $kegiatan->ringkasanKas(),
-            'perusahaan' => config('taksasi.perusahaan'),
+            'perusahaan' => $this->perusahaan(),
             'dicetakPada' => Carbon::now(),
             'dicetakOleh' => $request->user()?->name ?? '-',
         ])->setPaper('a4', 'portrait');
@@ -245,7 +246,7 @@ class ReportController extends Controller
             'baris' => $rows['baris'],
             'total' => $rows['total'],
             'periode' => ['dari' => $request->query('dari'), 'sampai' => $request->query('sampai')],
-            'perusahaan' => config('taksasi.perusahaan'),
+            'perusahaan' => $this->perusahaan(),
             'dicetakPada' => Carbon::now(),
             'dicetakOleh' => $request->user()?->name ?? '-',
         ])->setPaper('a4', 'landscape');
@@ -296,7 +297,7 @@ class ReportController extends Controller
             'kas' => $kas,
             'kegiatan' => $kegiatan,
             'periode' => ['dari' => $request->query('dari'), 'sampai' => $request->query('sampai')],
-            'perusahaan' => config('taksasi.perusahaan'),
+            'perusahaan' => $this->perusahaan(),
             'dicetakPada' => Carbon::now(),
             'dicetakOleh' => $request->user()?->name ?? '-',
         ])->setPaper('a4', 'landscape');
@@ -451,5 +452,28 @@ class ReportController extends Controller
         }
 
         return ['baris' => $baris, 'total' => $totalFormatted];
+    }
+
+    /**
+     * Kop PDF memakai identitas tim yang mencetak, bukan satu perusahaan
+     * tetap seperti di aplikasi tunggal dulu.
+     *
+     * @return array{nama: string, alamat: string, telepon: string, email: string}
+     */
+    private function perusahaan(): array
+    {
+        $tim = TimAktif::get();
+        $bawaan = (array) config('taksasi.perusahaan');
+
+        if ($tim === null) {
+            return $bawaan + ['nama' => '', 'alamat' => '', 'telepon' => '', 'email' => ''];
+        }
+
+        return [
+            'nama' => $tim->nama,
+            'alamat' => trim(implode(', ', array_filter([$tim->alamat, $tim->kota]))) ?: '-',
+            'telepon' => $tim->no_wa ?: '-',
+            'email' => $tim->email ?: '-',
+        ];
     }
 }

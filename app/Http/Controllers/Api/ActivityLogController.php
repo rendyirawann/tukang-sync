@@ -10,6 +10,7 @@ use App\Models\ActivityLog;
 use App\Models\User;
 use App\Support\ApiResponse;
 use App\Support\Izin;
+use App\Support\Tenancy\TimAktif;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -56,7 +57,7 @@ class ActivityLogController extends Controller
         security: [['bearerAuth' => []]],
         tags: ['Aktivitas'],
         parameters: [
-            new OA\Parameter(name: 'user_id', description: 'Saring untuk satu pengguna', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'user_id', description: 'Saring untuk satu pengguna', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'uuid')),
             new OA\Parameter(name: 'modul', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'dari', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
             new OA\Parameter(name: 'sampai', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
@@ -79,7 +80,7 @@ class ActivityLogController extends Controller
             );
         }
 
-        return $this->daftar($request, $request->integer('user_id') ?: null);
+        return $this->daftar($request, $request->filled('user_id') ? (string) $request->query('user_id') : null);
     }
 
     #[OA\Get(
@@ -131,7 +132,7 @@ class ActivityLogController extends Controller
             ->toBase()
             ->get()
             ->map(fn ($r) => [
-                'user_id' => (int) $r->user_id,
+                'user_id' => (string) $r->user_id,
                 'nama' => (string) $r->nama,
                 'role' => (string) $r->role,
                 'jumlah' => (int) $r->jumlah,
@@ -149,20 +150,21 @@ class ActivityLogController extends Controller
             'per_modul' => $perModul,
             'per_pengguna' => $perPengguna,
             'daftar_modul' => ActivityLogResource::daftarModul(),
-            'daftar_pengguna' => User::query()
+            'daftar_pengguna' => User::anggotaTim((int) TimAktif::id())
                 ->orderBy('name')
-                ->get(['id', 'name', 'role'])
+                ->get(['id', 'name', 'peran', 'team_id'])
                 ->map(fn (User $u) => [
                     'id' => $u->id,
                     'nama' => $u->name,
-                    'role' => $u->role,
+                    'role' => $u->peranLama(),
+                    'peran' => $u->peran?->value,
                     'role_label' => $u->roleLabel(),
                 ])
                 ->all(),
         ], 'Ringkasan aktivitas.');
     }
 
-    private function daftar(Request $request, ?int $userId): JsonResponse
+    private function daftar(Request $request, ?string $userId): JsonResponse
     {
         $perPage = min(100, max(1, (int) $request->query('per_page', 30)));
 

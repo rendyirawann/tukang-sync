@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Kegiatan;
+use App\Models\Team;
+use App\Support\Tenancy\TimAktif;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,6 +24,8 @@ class KegiatanFactory extends Factory
     public function definition(): array
     {
         return [
+            // Tim aktif bila ada (TimAktif::set di test), selain itu tim baru.
+            'team_id' => fn () => TimAktif::id() ?? Team::factory(),
             'nama' => fake()->randomElement(['A', 'B', 'C']).' '.fake()->numerify('##'),
             'kode' => 'KG-'.fake()->unique()->numerify('####-###'),
             'keterangan' => null,

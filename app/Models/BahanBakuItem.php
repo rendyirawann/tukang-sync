@@ -27,7 +27,7 @@ class BahanBakuItem extends Model
     protected $table = 'bahan_baku_items';
 
     protected $fillable = [
-        'kegiatan_id', 'nama', 'satuan', 'qty', 'harga_satuan',
+        'kegiatan_id', 'material_id', 'pekerjaan_id', 'nama', 'satuan', 'qty', 'harga_satuan',
         'tanggal_beli', 'toko', 'keterangan', 'urutan',
         'created_by',
     ];

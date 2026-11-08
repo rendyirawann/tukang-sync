@@ -102,7 +102,8 @@
                         "description": "Saring untuk satu pengguna",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     },
                     {
@@ -2234,6 +2235,1422 @@
                 ]
             }
         },
+        "/api/analisa": {
+            "get": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Template analisa harga satuan (AHSP) milik tim",
+                "operationId": "analisaIndex",
+                "parameters": [
+                    {
+                        "name": "kategori",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Tambah analisa",
+                "operationId": "analisaStore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama",
+                                    "kategori",
+                                    "satuan"
+                                ],
+                                "properties": {
+                                    "kode": {
+                                        "type": "string"
+                                    },
+                                    "nama": {
+                                        "type": "string",
+                                        "example": "Pasang dinding bata ringan"
+                                    },
+                                    "kategori": {
+                                        "type": "string",
+                                        "example": "dinding"
+                                    },
+                                    "satuan": {
+                                        "type": "string",
+                                        "example": "m2"
+                                    },
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "material_id": {
+                                                    "type": "integer"
+                                                },
+                                                "koefisien": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/analisa/{analisa}": {
+            "get": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Detail analisa beserta koefisien",
+                "operationId": "analisaShow",
+                "parameters": [
+                    {
+                        "name": "analisa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Ubah analisa (items dikirim = mengganti seluruh koefisien)",
+                "operationId": "analisaUpdate",
+                "parameters": [
+                    {
+                        "name": "analisa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Hapus analisa (RAB yang sudah memakainya tidak berubah)",
+                "operationId": "analisaDestroy",
+                "parameters": [
+                    {
+                        "name": "analisa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terhapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/{kegiatan}/bangunan": {
+            "post": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Tambah bangunan",
+                "operationId": "bangunanStore",
+                "parameters": [
+                    {
+                        "name": "kegiatan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama"
+                                ],
+                                "properties": {
+                                    "nama": {
+                                        "type": "string",
+                                        "example": "Rumah Utama"
+                                    },
+                                    "jenis": {
+                                        "type": "string",
+                                        "example": "rumah"
+                                    },
+                                    "luas_tanah": {
+                                        "type": "number"
+                                    },
+                                    "luas_bangunan": {
+                                        "type": "number"
+                                    },
+                                    "keterangan": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Dibuat"
+                    },
+                    "403": {
+                        "description": "Bukan pengelola"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bangunan/{bangunan}": {
+            "put": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Ubah bangunan",
+                "operationId": "bangunanUpdate",
+                "parameters": [
+                    {
+                        "name": "bangunan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Hapus bangunan beserta lantai, ruangan, dan pekerjaannya",
+                "operationId": "bangunanDestroy",
+                "parameters": [
+                    {
+                        "name": "bangunan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terhapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pekerjaan/{pekerjaan}/kebutuhan": {
+            "post": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Tambah kebutuhan material ke pekerjaan",
+                "description": "Kirim material_id (nama/satuan/harga diambil dari katalog) atau nama+satuan+harga_satuan untuk item bebas. Isi koefisien (per satuan pekerjaan) atau qty (jumlah tetap).",
+                "operationId": "kebutuhanStore",
+                "parameters": [
+                    {
+                        "name": "pekerjaan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "material_id": {
+                                        "type": "integer"
+                                    },
+                                    "nama": {
+                                        "type": "string"
+                                    },
+                                    "satuan": {
+                                        "type": "string"
+                                    },
+                                    "kategori": {
+                                        "type": "string"
+                                    },
+                                    "harga_satuan": {
+                                        "type": "number"
+                                    },
+                                    "koefisien": {
+                                        "type": "number"
+                                    },
+                                    "qty": {
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Ditambahkan; respons = Pekerjaan lengkap"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kebutuhan/{kebutuhan}": {
+            "put": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Ubah kebutuhan",
+                "description": "Mengisi qty membuat qty tetap (qty_manual=true); mengisi koefisien mengembalikannya ke hitungan otomatis.",
+                "operationId": "kebutuhanUpdate",
+                "parameters": [
+                    {
+                        "name": "kebutuhan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan; respons = Pekerjaan lengkap"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Hapus kebutuhan",
+                "operationId": "kebutuhanDestroy",
+                "parameters": [
+                    {
+                        "name": "kebutuhan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terhapus; respons = Pekerjaan lengkap"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bangunan/{bangunan}/lantai": {
+            "post": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Tambah lantai",
+                "operationId": "lantaiStore",
+                "parameters": [
+                    {
+                        "name": "bangunan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama",
+                                    "nomor"
+                                ],
+                                "properties": {
+                                    "nama": {
+                                        "type": "string",
+                                        "example": "Lantai 1"
+                                    },
+                                    "nomor": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "luas": {
+                                        "type": "number"
+                                    },
+                                    "tinggi": {
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/lantai/{lantai}": {
+            "put": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Ubah lantai",
+                "operationId": "lantaiUpdate",
+                "parameters": [
+                    {
+                        "name": "lantai",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Hapus lantai beserta ruangan dan pekerjaannya",
+                "operationId": "lantaiDestroy",
+                "parameters": [
+                    {
+                        "name": "lantai",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terhapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/{kegiatan}/log-harian": {
+            "get": {
+                "tags": [
+                    "Log Harian"
+                ],
+                "summary": "Log harian lapangan satu proyek",
+                "operationId": "logHarianIndex",
+                "parameters": [
+                    {
+                        "name": "kegiatan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 25
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK (paginasi)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Log Harian"
+                ],
+                "summary": "Tulis log harian",
+                "operationId": "logHarianStore",
+                "parameters": [
+                    {
+                        "name": "kegiatan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "tanggal",
+                                    "uraian"
+                                ],
+                                "properties": {
+                                    "tanggal": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "cuaca": {
+                                        "type": "string",
+                                        "example": "cerah"
+                                    },
+                                    "jumlah_pekerja": {
+                                        "type": "integer",
+                                        "example": 6
+                                    },
+                                    "uraian": {
+                                        "type": "string"
+                                    },
+                                    "kendala": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/log-harian/{logHarian}": {
+            "put": {
+                "tags": [
+                    "Log Harian"
+                ],
+                "summary": "Ubah log harian (pembuat atau pengelola)",
+                "operationId": "logHarianUpdate",
+                "parameters": [
+                    {
+                        "name": "logHarian",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Log Harian"
+                ],
+                "summary": "Hapus log harian (pembuat atau pengelola)",
+                "operationId": "logHarianDestroy",
+                "parameters": [
+                    {
+                        "name": "logHarian",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terhapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/material": {
+            "get": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Katalog material, upah, dan alat milik tim",
+                "operationId": "materialIndex",
+                "parameters": [
+                    {
+                        "name": "kategori",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "material",
+                                "upah",
+                                "alat"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "aktif",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Tambah material",
+                "operationId": "materialStore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama",
+                                    "kategori",
+                                    "satuan",
+                                    "harga"
+                                ],
+                                "properties": {
+                                    "kode": {
+                                        "type": "string"
+                                    },
+                                    "nama": {
+                                        "type": "string",
+                                        "example": "Semen PC 50 kg"
+                                    },
+                                    "kategori": {
+                                        "type": "string",
+                                        "example": "material"
+                                    },
+                                    "satuan": {
+                                        "type": "string",
+                                        "example": "zak"
+                                    },
+                                    "harga": {
+                                        "type": "number",
+                                        "example": 70000
+                                    },
+                                    "merek": {
+                                        "type": "string"
+                                    },
+                                    "toko": {
+                                        "type": "string"
+                                    },
+                                    "aktif": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/material/{material}": {
+            "put": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Ubah material",
+                "description": "Harga baru tidak mengubah RAB yang sudah tersusun; pakai segarkan-harga pada pekerjaan bila ingin.",
+                "operationId": "materialUpdate",
+                "parameters": [
+                    {
+                        "name": "material",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Katalog"
+                ],
+                "summary": "Hapus material (soft delete)",
+                "operationId": "materialDestroy",
+                "parameters": [
+                    {
+                        "name": "material",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terhapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/{kegiatan}/pekerjaan": {
+            "get": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Daftar item RAB proyek (tanpa rincian kebutuhan)",
+                "operationId": "pekerjaanIndex",
+                "parameters": [
+                    {
+                        "name": "kegiatan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "bangunan_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "lantai_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "ruangan_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "kategori",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Tambah item RAB",
+                "description": "Volume dihitung dari jumlah × dimensi menurut satuan (unit/titik/ls = jumlah, m1 = ×panjang, m2 = ×panjang×(lebar atau tinggi), m3 = ×p×l×t) kecuali volume_manual. Bila analisa_id diisi, kebutuhan material dibuat dari analisa dengan harga katalog saat ini.",
+                "operationId": "pekerjaanStore",
+                "parameters": [
+                    {
+                        "name": "kegiatan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "kategori",
+                                    "nama",
+                                    "jumlah",
+                                    "satuan"
+                                ],
+                                "properties": {
+                                    "kategori": {
+                                        "type": "string",
+                                        "example": "kusen"
+                                    },
+                                    "komponen": {
+                                        "type": "string",
+                                        "example": "pintu"
+                                    },
+                                    "nama": {
+                                        "type": "string",
+                                        "example": "Pintu kamar"
+                                    },
+                                    "bangunan_id": {
+                                        "type": "integer"
+                                    },
+                                    "lantai_id": {
+                                        "type": "integer"
+                                    },
+                                    "ruangan_id": {
+                                        "type": "integer"
+                                    },
+                                    "jumlah": {
+                                        "type": "number",
+                                        "example": 3
+                                    },
+                                    "panjang": {
+                                        "type": "number"
+                                    },
+                                    "lebar": {
+                                        "type": "number"
+                                    },
+                                    "tinggi": {
+                                        "type": "number"
+                                    },
+                                    "satuan": {
+                                        "type": "string",
+                                        "example": "unit"
+                                    },
+                                    "volume_manual": {
+                                        "type": "boolean"
+                                    },
+                                    "volume": {
+                                        "type": "number"
+                                    },
+                                    "harga_satuan": {
+                                        "type": "number"
+                                    },
+                                    "analisa_id": {
+                                        "type": "integer"
+                                    },
+                                    "progres": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Dibuat"
+                    },
+                    "403": {
+                        "description": "Bukan pengelola"
+                    },
+                    "422": {
+                        "description": "Validasi gagal / lokasi tidak konsisten"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pekerjaan/{pekerjaan}": {
+            "get": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Detail pekerjaan beserta kebutuhan material",
+                "operationId": "pekerjaanShow",
+                "parameters": [
+                    {
+                        "name": "pekerjaan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Ubah item RAB (mengganti analisa_id menerapkan ulang analisa)",
+                "operationId": "pekerjaanUpdate",
+                "parameters": [
+                    {
+                        "name": "pekerjaan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Hapus item RAB",
+                "operationId": "pekerjaanDestroy",
+                "parameters": [
+                    {
+                        "name": "pekerjaan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terhapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pekerjaan/{pekerjaan}/progres": {
+            "patch": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Perbarui progres pekerjaan",
+                "description": "Boleh diisi pengelola maupun mandor/anggota.",
+                "operationId": "pekerjaanProgres",
+                "parameters": [
+                    {
+                        "name": "pekerjaan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "progres"
+                                ],
+                                "properties": {
+                                    "progres": {
+                                        "type": "integer",
+                                        "example": 75
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pekerjaan/{pekerjaan}/analisa": {
+            "post": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Terapkan (ulang) analisa ke pekerjaan",
+                "operationId": "pekerjaanAnalisa",
+                "parameters": [
+                    {
+                        "name": "pekerjaan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "analisa_id"
+                                ],
+                                "properties": {
+                                    "analisa_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Diterapkan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pekerjaan/{pekerjaan}/segarkan-harga": {
+            "post": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Ambil ulang harga kebutuhan dari katalog terkini",
+                "operationId": "pekerjaanSegarkanHarga",
+                "parameters": [
+                    {
+                        "name": "pekerjaan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Diperbarui"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/{kegiatan}/rab": {
+            "get": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Ringkasan & struktur RAB proyek",
+                "description": "Ringkasan RAB (total, progres tertimbang, per kategori, per lokasi, realisasi belanja) beserta struktur bangunan › lantai › ruangan lengkap dengan total RAB tiap level.",
+                "operationId": "rabRingkasan",
+                "parameters": [
+                    {
+                        "name": "kegiatan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "Proyek tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/{kegiatan}/rekap-material": {
+            "get": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Rekap kebutuhan material",
+                "description": "Total kebutuhan material/upah seluruh pekerjaan (daftar belanja), dibandingkan dengan pembelian nyata (bahan baku yang ditautkan ke material yang sama).",
+                "operationId": "rabRekapMaterial",
+                "parameters": [
+                    {
+                        "name": "kegiatan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/referensi/rab": {
+            "get": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Referensi RAB",
+                "description": "Pilihan untuk form RAB: kategori pekerjaan, komponen (dengan satuan & kategori bawaan), satuan (dengan dimensi yang relevan), jenis bangunan, kategori material, cuaca.",
+                "operationId": "referensiRab",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/lantai/{lantai}/ruangan": {
+            "post": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Tambah ruangan / zona",
+                "operationId": "ruanganStore",
+                "parameters": [
+                    {
+                        "name": "lantai",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nama"
+                                ],
+                                "properties": {
+                                    "nama": {
+                                        "type": "string",
+                                        "example": "Dapur"
+                                    },
+                                    "panjang": {
+                                        "type": "number",
+                                        "example": 3
+                                    },
+                                    "lebar": {
+                                        "type": "number",
+                                        "example": 3
+                                    },
+                                    "tinggi": {
+                                        "type": "number",
+                                        "example": 3.5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/ruangan/{ruangan}": {
+            "put": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Ubah ruangan",
+                "operationId": "ruanganUpdate",
+                "parameters": [
+                    {
+                        "name": "ruangan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tersimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "RAB"
+                ],
+                "summary": "Hapus ruangan beserta pekerjaannya",
+                "operationId": "ruanganDestroy",
+                "parameters": [
+                    {
+                        "name": "ruangan",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Terhapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/referensi": {
             "get": {
                 "tags": [
@@ -2613,8 +4030,8 @@
                 "tags": [
                     "Pengguna"
                 ],
-                "summary": "Daftar petugas",
-                "description": "Daftar akun petugas. Hanya superadmin yang boleh mengaksesnya.",
+                "summary": "Daftar anggota tim",
+                "description": "Daftar akun anggota tim beserta kuota. Hanya owner/kontraktor.",
                 "operationId": "penggunaIndex",
                 "parameters": [
                     {
@@ -2641,7 +4058,7 @@
                         "description": "OK"
                     },
                     "403": {
-                        "description": "Bukan superadmin"
+                        "description": "Bukan pengelola"
                     }
                 },
                 "security": [
@@ -2654,8 +4071,8 @@
                 "tags": [
                     "Pengguna"
                 ],
-                "summary": "Tambah petugas",
-                "description": "Membuat akun petugas baru. Perannya selalu \"petugas\" -- tidak bisa ditentukan lewat permintaan, sehingga tidak mungkin tercipta superadmin kedua karena salah kirim.",
+                "summary": "Tambah anggota",
+                "description": "Menambah akun anggota tim. Ditolak 422 bila kuota tim (termasuk owner) sudah penuh.",
                 "operationId": "penggunaStore",
                 "requestBody": {
                     "required": true,
@@ -2674,21 +4091,31 @@
                                     },
                                     "email": {
                                         "type": "string",
-                                        "format": "email",
-                                        "example": "sinta@taksasi.test"
+                                        "format": "email"
                                     },
                                     "password": {
                                         "description": "Minimal 8 karakter, ada huruf & angka",
                                         "type": "string",
                                         "format": "password"
                                     },
-                                    "phone": {
+                                    "peran": {
+                                        "type": "string",
+                                        "example": "anggota",
+                                        "enum": [
+                                            "owner",
+                                            "kontraktor",
+                                            "mandor",
+                                            "anggota",
+                                            "viewer"
+                                        ]
+                                    },
+                                    "no_wa": {
                                         "type": "string",
                                         "nullable": true
                                     },
-                                    "is_active": {
-                                        "type": "boolean",
-                                        "example": true
+                                    "jabatan": {
+                                        "type": "string",
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -2698,13 +4125,13 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Petugas dibuat"
+                        "description": "Dibuat"
                     },
                     "403": {
-                        "description": "Bukan superadmin"
+                        "description": "Bukan pengelola"
                     },
                     "422": {
-                        "description": "Validasi gagal"
+                        "description": "Validasi gagal / kuota penuh"
                     }
                 },
                 "security": [
@@ -2719,7 +4146,7 @@
                 "tags": [
                     "Pengguna"
                 ],
-                "summary": "Detail petugas",
+                "summary": "Detail anggota",
                 "operationId": "penggunaShow",
                 "parameters": [
                     {
@@ -2727,7 +4154,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -2746,8 +4174,8 @@
                 "tags": [
                     "Pengguna"
                 ],
-                "summary": "Ubah petugas",
-                "description": "Mengubah data petugas. Kosongkan password bila tidak ingin menggantinya. Mengubah password di sini juga mencabut token sidik jari petugas tersebut.",
+                "summary": "Ubah anggota",
+                "description": "Mengubah data anggota. Kosongkan password bila tidak ingin menggantinya. Mengganti password atau menonaktifkan akun mencabut sesi dan sidik jarinya.",
                 "operationId": "penggunaUpdate",
                 "parameters": [
                     {
@@ -2755,36 +4183,11 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "password": {
-                                        "description": "Opsional",
-                                        "type": "string",
-                                        "nullable": true
-                                    },
-                                    "is_active": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "Tersimpan"
@@ -2800,8 +4203,8 @@
                 "tags": [
                     "Pengguna"
                 ],
-                "summary": "Nonaktifkan petugas",
-                "description": "Menonaktifkan akun petugas dan mencabut seluruh sesinya. Akunnya tidak dihapus dari database agar jejak siapa yang menginput data lama tetap terbaca.",
+                "summary": "Nonaktifkan anggota",
+                "description": "Menonaktifkan akun dan mencabut seluruh sesinya. Akunnya tidak dihapus agar jejak siapa yang menginput data lama tetap terbaca. Pengelola aktif terakhir tidak bisa dinonaktifkan.",
                 "operationId": "penggunaDestroy",
                 "parameters": [
                     {
@@ -2809,7 +4212,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -2832,26 +4236,57 @@
                 "properties": {
                     "id": {
                         "description": "Definisi schema bersama untuk Swagger. Kelas ini tidak pernah dieksekusi,\nhanya dibaca oleh swagger-php saat generate dokumentasi.",
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "01a1bb30-7de4-70e9-87b4-f86c6dbcc561"
                     },
                     "name": {
                         "type": "string",
-                        "example": "Bayu Apriansah"
+                        "example": "Budi Santoso"
                     },
                     "email": {
                         "type": "string",
                         "format": "email",
-                        "example": "superadmin@taksasi.test"
+                        "example": "owner@demo.test"
                     },
                     "role": {
-                        "description": "superadmin | petugas",
+                        "description": "Peran versi lama untuk aplikasi lama: \"superadmin\" = pengelola tim (owner/kontraktor), \"petugas\" = lainnya",
                         "type": "string",
-                        "example": "petugas"
+                        "example": "superadmin"
+                    },
+                    "peran": {
+                        "description": "owner | kontraktor | mandor | anggota | viewer",
+                        "type": "string",
+                        "example": "owner"
+                    },
+                    "tim": {
+                        "properties": {
+                            "kode": {
+                                "type": "string",
+                                "example": "DEMO"
+                            },
+                            "nama": {
+                                "type": "string",
+                                "example": "CV Bangun Jaya"
+                            },
+                            "hanya_baca": {
+                                "description": "true bila masa langganan habis",
+                                "type": "boolean"
+                            },
+                            "aktif_sampai": {
+                                "type": "string",
+                                "format": "date-time",
+                                "nullable": true
+                            },
+                            "lifetime": {
+                                "type": "boolean"
+                            }
+                        },
+                        "type": "object"
                     },
                     "role_label": {
                         "type": "string",
-                        "example": "Petugas"
+                        "example": "Owner"
                     },
                     "is_superadmin": {
                         "type": "boolean",
@@ -3492,6 +4927,22 @@
             "description": "Daftar enum & nilai default untuk form"
         },
         {
+            "name": "RAB",
+            "description": "Rencana Anggaran Biaya: bangunan › lantai › ruangan, item pekerjaan, kebutuhan material, progres"
+        },
+        {
+            "name": "Katalog",
+            "description": "Katalog harga material/upah/alat dan template analisa (AHSP) milik tim"
+        },
+        {
+            "name": "Log Harian",
+            "description": "Catatan harian lapangan dari mandor/pengawas"
+        },
+        {
+            "name": "Pengguna",
+            "description": "Anggota tim (khusus owner/kontraktor)"
+        },
+        {
             "name": "Aktivitas",
             "description": "Aktivitas"
         },
@@ -3506,10 +4957,6 @@
         {
             "name": "Data Master",
             "description": "Data Master"
-        },
-        {
-            "name": "Pengguna",
-            "description": "Pengguna"
         }
     ]
 }

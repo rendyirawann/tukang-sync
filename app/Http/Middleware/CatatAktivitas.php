@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Support\Tenancy\TimAktif;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -62,10 +63,18 @@ class CatatAktivitas
 
         [$modul, $aksi] = $this->kenali($request, $routeName);
 
+        // Login belum melewati tim.api, jadi tim diambil dari akunnya.
+        $timId = TimAktif::id() ?? $user?->team_id;
+
+        if ($timId === null) {
+            return; // bukan aktivitas tim (mis. login gagal tanpa akun)
+        }
+
         ActivityLog::create([
+            'team_id' => $timId,
             'user_id' => $user?->id,
             'user_nama' => $user?->name,
-            'user_role' => $user?->role,
+            'user_role' => $user?->peran?->value,
 
             'aksi' => $aksi,
             'modul' => $modul,
@@ -170,9 +179,10 @@ class CatatAktivitas
     }
 
     /** Ambil id sasaran dari parameter route, apa pun namanya. */
-    private function subjekId(Request $request): ?int
+    /** ID subjek sebagai string: ID akun berupa UUID, ID lain integer. */
+    private function subjekId(Request $request): ?string
     {
-        foreach (['kegiatan', 'bahanBaku', 'cashFlow', 'lampiran', 'user'] as $nama) {
+        foreach (['kegiatan', 'bahanBaku', 'cashFlow', 'lampiran', 'user', 'pekerjaan', 'bangunan', 'lantai', 'ruangan', 'material', 'analisa', 'logHarian'] as $nama) {
             $param = $request->route($nama);
 
             if ($param === null) {
@@ -180,11 +190,11 @@ class CatatAktivitas
             }
 
             if (is_object($param) && isset($param->id)) {
-                return (int) $param->id;
+                return (string) $param->id;
             }
 
-            if (is_numeric($param)) {
-                return (int) $param;
+            if (is_scalar($param)) {
+                return (string) $param;
             }
         }
 

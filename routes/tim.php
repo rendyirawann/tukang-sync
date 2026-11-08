@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\Route;
 | /docs atau /admin tidak pernah tertangkap sebagai kode tim.
 */
 
-Route::pattern('tim', '[A-HJKMNP-Za-hjkmnp-z2-9]{4,6}');
+// Catatan: kode buatan sistem tidak memakai I/L/O/0/1, tetapi kode yang
+// ditetapkan manual (mis. tim contoh "DEMO") boleh memakainya, jadi pola
+// menerima alfanumerik apa pun -- kecuali "docs" milik spesifikasi Swagger.
+Route::pattern('tim', '(?![Dd][Oo][Cc][Ss]\b)[A-Za-z0-9]{4,6}');
 
 Route::prefix('{tim}')->name('tim.')->group(function () {
 

@@ -36,7 +36,11 @@ class TimApi
         }
 
         if (! $user->is_active || $user->banned_at !== null) {
-            $user->currentAccessToken()?->delete();
+            $token = $user->currentAccessToken();
+
+            if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+                $token->delete();
+            }
 
             return ApiResponse::error('Akun Anda dinonaktifkan. Hubungi pemilik tim.', 403, code: 'ACCOUNT_DISABLED');
         }

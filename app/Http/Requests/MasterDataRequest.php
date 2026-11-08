@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use App\Enums\JenisMaster;
 use App\Support\Izin;
+use App\Support\Tenancy\TimAktif;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -33,7 +34,7 @@ class MasterDataRequest extends FormRequest
                 'string',
                 'max:100',
                 Rule::unique('master_data', 'nama')
-                    ->where(fn ($q) => $q->where('jenis', $jenis))
+                    ->where(fn ($q) => $q->where('jenis', $jenis)->where('team_id', TimAktif::id()))
                     ->whereNull('deleted_at')
                     ->ignore($id),
             ],

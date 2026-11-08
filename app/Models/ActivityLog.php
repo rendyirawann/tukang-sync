@@ -48,7 +48,7 @@ class ActivityLog extends Model
     // Scopes
     // ------------------------------------------------------------------
 
-    public function scopeUntukUser(Builder $q, ?int $userId): Builder
+    public function scopeUntukUser(Builder $q, ?string $userId): Builder
     {
         return $userId === null ? $q : $q->where('user_id', $userId);
     }

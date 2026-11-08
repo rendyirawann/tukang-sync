@@ -36,6 +36,30 @@
             </div>
 
             @role('Superadmin|superadmin')
+                @php($saasMenunggu = \App\Models\TeamPayment::where('status', 'menunggu')->count())
+                <div class="menu-item pt-5">
+                    <div class="menu-content">
+                        <span class="menu-heading fw-bold text-uppercase fs-7">Langganan</span>
+                    </div>
+                </div>
+                @foreach ([
+                    ['saas.tim.*', 'saas.tim.index', 'Tim', 'ki-people'],
+                    ['saas.bayar.*', 'saas.bayar.index', 'Pembayaran', 'ki-wallet'],
+                    ['saas.paket.*', 'saas.paket.index', 'Paket', 'ki-price-tag'],
+                    ['saas.rekening.*', 'saas.rekening.index', 'Rekening', 'ki-bank'],
+                    ['saas.kontak.*', 'saas.kontak.index', 'Kontak WhatsApp', 'ki-whatsapp'],
+                ] as [$pola, $rute, $judul, $ikon])
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs($pola) ? 'active' : '' }}" href="{{ route($rute) }}">
+                            <span class="menu-icon"><i class="ki-outline {{ $ikon }} fs-3"></i></span>
+                            <span class="menu-title">{{ $judul }}</span>
+                            @if ($rute === 'saas.bayar.index' && $saasMenunggu > 0)
+                                <span class="menu-badge"><span class="badge badge-warning">{{ $saasMenunggu }}</span></span>
+                            @endif
+                        </a>
+                    </div>
+                @endforeach
+
                 <div class="menu-item pt-5">
                     <div class="menu-content">
                         <span class="menu-heading fw-bold text-uppercase fs-7">Manajemen</span>

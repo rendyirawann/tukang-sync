@@ -53,4 +53,8 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Cash Flow', description: 'Pencatatan kas masuk / keluar per proyek')]
 #[OA\Tag(name: 'Laporan', description: 'Ringkasan, rekap, dan cetak PDF')]
 #[OA\Tag(name: 'Referensi', description: 'Daftar enum & nilai default untuk form')]
+#[OA\Tag(name: 'RAB', description: 'Rencana Anggaran Biaya: bangunan › lantai › ruangan, item pekerjaan, kebutuhan material, progres')]
+#[OA\Tag(name: 'Katalog', description: 'Katalog harga material/upah/alat dan template analisa (AHSP) milik tim')]
+#[OA\Tag(name: 'Log Harian', description: 'Catatan harian lapangan dari mandor/pengawas')]
+#[OA\Tag(name: 'Pengguna', description: 'Anggota tim (khusus owner/kontraktor)')]
 final class Info {}

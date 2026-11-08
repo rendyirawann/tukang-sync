@@ -40,8 +40,11 @@ class TimWeb
 
         // Kode diketik huruf kecil: arahkan ke bentuk bakunya supaya URL
         // yang dibagikan selalu sama.
-        if (is_string($param) && $param !== $tim->slug && $request->isMethod('GET')) {
-            return redirect()->to(preg_replace('#/'.preg_quote($param, '#').'(/|$)#', '/'.$tim->slug.'$1', $request->getRequestUri(), 1));
+        // Nilai asli dari URL: binding bisa saja sudah mengubahnya jadi model.
+        $asli = (string) ($request->route()->originalParameter('tim') ?? (is_string($param) ? $param : $tim->slug));
+
+        if ($asli !== $tim->slug && $request->isMethod('GET')) {
+            return redirect()->to(preg_replace('#/'.preg_quote($asli, '#').'(/|$)#', '/'.$tim->slug.'$1', $request->getRequestUri(), 1));
         }
 
         $request->route()->setParameter('tim', $tim);

@@ -10,6 +10,16 @@ use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\KegiatanController;
 use App\Http\Controllers\Api\LampiranController;
 use App\Http\Controllers\Api\MasterDataController;
+use App\Http\Controllers\Api\Rab\AnalisaController;
+use App\Http\Controllers\Api\Rab\BangunanController;
+use App\Http\Controllers\Api\Rab\KebutuhanController;
+use App\Http\Controllers\Api\Rab\LantaiController;
+use App\Http\Controllers\Api\Rab\LogHarianController;
+use App\Http\Controllers\Api\Rab\MaterialController;
+use App\Http\Controllers\Api\Rab\PekerjaanController;
+use App\Http\Controllers\Api\Rab\RabController;
+use App\Http\Controllers\Api\Rab\ReferensiRabController;
+use App\Http\Controllers\Api\Rab\RuanganController;
 use App\Http\Controllers\Api\ReferenceController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\UserController;
@@ -35,7 +45,11 @@ Route::get('/health', HealthController::class)->name('api.health');
 // lain tidak bisa mengunci akun Anda hanya dengan salah memasukkan sandi
 // berulang kali. Rinciannya di RateLimitServiceProvider.
 // ---------------------------------------------------------------------
-Route::prefix('auth')->middleware('throttle:login')->group(function (): void {
+// Penjaga BANJIR (20/menit per IP), sengaja jauh lebih longgar dari limiter
+// "login" panel web: penebakan sandi sudah dikunci AuthController (5 gagal
+// per email+IP, dengan Retry-After), dan pesan itu harus sampai ke aplikasi
+// lebih dulu daripada 429 generik.
+Route::prefix('auth')->middleware('throttle:20,1')->group(function (): void {
     Route::post('/login', [AuthController::class, 'login'])->name('api.auth.login');
     Route::post('/biometric/login', [AuthController::class, 'biometricLogin'])->name('api.auth.biometric.login');
 });
@@ -130,6 +144,51 @@ Route::middleware(['auth:sanctum', 'tim.api'])->group(function (): void {
         Route::get('/ringkasan', [ActivityLogController::class, 'ringkasan'])->name('api.aktivitas.ringkasan');
         Route::get('/', [ActivityLogController::class, 'index'])->name('api.aktivitas.index');
     });
+
+    // ---- RAB (docs/API-RAB.md) ----
+    Route::get('/referensi/rab', ReferensiRabController::class)->name('api.referensi.rab');
+
+    Route::prefix('kegiatan/{kegiatan}')->group(function (): void {
+        Route::get('/rab', [RabController::class, 'show'])->name('api.rab.show');
+        Route::get('/rekap-material', [RabController::class, 'rekapMaterial'])->name('api.rab.rekap-material');
+        Route::post('/bangunan', [BangunanController::class, 'store'])->name('api.bangunan.store');
+        Route::get('/pekerjaan', [PekerjaanController::class, 'index'])->name('api.pekerjaan.index');
+        Route::post('/pekerjaan', [PekerjaanController::class, 'store'])->name('api.pekerjaan.store');
+        Route::get('/log-harian', [LogHarianController::class, 'index'])->name('api.log-harian.index');
+        Route::post('/log-harian', [LogHarianController::class, 'store'])->name('api.log-harian.store');
+    });
+
+    Route::put('/bangunan/{bangunan}', [BangunanController::class, 'update'])->name('api.bangunan.update');
+    Route::delete('/bangunan/{bangunan}', [BangunanController::class, 'destroy'])->name('api.bangunan.destroy');
+    Route::post('/bangunan/{bangunan}/lantai', [LantaiController::class, 'store'])->name('api.lantai.store');
+
+    Route::put('/lantai/{lantai}', [LantaiController::class, 'update'])->name('api.lantai.update');
+    Route::delete('/lantai/{lantai}', [LantaiController::class, 'destroy'])->name('api.lantai.destroy');
+    Route::post('/lantai/{lantai}/ruangan', [RuanganController::class, 'store'])->name('api.ruangan.store');
+
+    Route::put('/ruangan/{ruangan}', [RuanganController::class, 'update'])->name('api.ruangan.update');
+    Route::delete('/ruangan/{ruangan}', [RuanganController::class, 'destroy'])->name('api.ruangan.destroy');
+
+    Route::prefix('pekerjaan/{pekerjaan}')->group(function (): void {
+        Route::get('/', [PekerjaanController::class, 'show'])->name('api.pekerjaan.show');
+        Route::put('/', [PekerjaanController::class, 'update'])->name('api.pekerjaan.update');
+        Route::delete('/', [PekerjaanController::class, 'destroy'])->name('api.pekerjaan.destroy');
+        Route::patch('/progres', [PekerjaanController::class, 'progres'])->name('api.pekerjaan.progres');
+        Route::post('/analisa', [PekerjaanController::class, 'analisa'])->name('api.pekerjaan.analisa');
+        Route::post('/segarkan-harga', [PekerjaanController::class, 'segarkanHarga'])->name('api.pekerjaan.segarkan-harga');
+        Route::post('/kebutuhan', [KebutuhanController::class, 'store'])->name('api.kebutuhan.store');
+    });
+
+    Route::put('/kebutuhan/{kebutuhan}', [KebutuhanController::class, 'update'])->name('api.kebutuhan.update');
+    Route::delete('/kebutuhan/{kebutuhan}', [KebutuhanController::class, 'destroy'])->name('api.kebutuhan.destroy');
+
+    Route::apiResource('material', MaterialController::class)->except('show')
+        ->parameters(['material' => 'material'])->names('api.material');
+    Route::apiResource('analisa', AnalisaController::class)
+        ->parameters(['analisa' => 'analisa'])->names('api.analisa');
+
+    Route::put('/log-harian/{logHarian}', [LogHarianController::class, 'update'])->name('api.log-harian.update');
+    Route::delete('/log-harian/{logHarian}', [LogHarianController::class, 'destroy'])->name('api.log-harian.destroy');
 
     // ---- Laporan ----
     Route::prefix('laporan')->group(function (): void {

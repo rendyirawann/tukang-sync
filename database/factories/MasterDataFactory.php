@@ -6,6 +6,8 @@ namespace Database\Factories;
 
 use App\Enums\JenisMaster;
 use App\Models\MasterData;
+use App\Models\Team;
+use App\Support\Tenancy\TimAktif;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,6 +20,7 @@ class MasterDataFactory extends Factory
     public function definition(): array
     {
         return [
+            'team_id' => fn () => TimAktif::id() ?? Team::factory(),
             'jenis' => JenisMaster::Satuan->value,
             'nama' => fake()->unique()->word(),
             'keterangan' => null,

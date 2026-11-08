@@ -37,6 +37,7 @@ class BahanBakuItemFactory extends Factory
             // menempel pada kegiatan yang sudah ada -- dan itu yang biasanya
             // dimaui, karena totalnya ikut menghitung ulang kegiatan itu.
             'kegiatan_id' => Kegiatan::factory(),
+            'team_id' => fn (array $a) => Kegiatan::timDari($a['kegiatan_id']),
 
             'nama' => $nama,
             'satuan' => $satuan,

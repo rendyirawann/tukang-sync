@@ -23,6 +23,7 @@ class LampiranFactory extends Factory
 
         return [
             'kegiatan_id' => Kegiatan::factory(),
+            'team_id' => fn (array $a) => Kegiatan::timDari($a['kegiatan_id']),
 
             'konteks' => 'biaya_pelaksanaan',
             'path' => 'kegiatan/uji/'.$nama,

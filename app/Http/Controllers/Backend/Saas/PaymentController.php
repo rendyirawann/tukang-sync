@@ -98,7 +98,7 @@ class PaymentController extends Controller
         $this->penyedia->konfirmasi($payment, $request->user(), $data['catatan'] ?? null, $data['bank_account_id'] ?? null);
 
         $tim = $payment->team->fresh();
-        ActivityRecorder::log('saas', 'Menerima pembayaran '.$payment->kode.' tim '.$tim->slug, [], $tim);
+        ActivityRecorder::log('saas', 'Menerima pembayaran '.$payment->kode.' tim '.$tim->slug, ['tim' => $tim->slug]);
 
         return redirect()->route('saas.bayar.show', $payment)
             ->with('success', "Pembayaran diterima. Tim {$tim->slug} aktif sampai {$tim->masaBerlakuLabel()}.");
@@ -109,7 +109,7 @@ class PaymentController extends Controller
         $data = $request->validate(['alasan' => ['required', 'string', 'max:255']]);
 
         $this->penyedia->tolak($payment, $request->user(), $data['alasan']);
-        ActivityRecorder::log('saas', 'Menolak pembayaran '.$payment->kode, [], $payment->team);
+        ActivityRecorder::log('saas', 'Menolak pembayaran '.$payment->kode, ['tim' => $payment->team?->slug]);
 
         return back()->with('success', 'Pembayaran ditolak.');
     }

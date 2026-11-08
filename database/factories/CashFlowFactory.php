@@ -22,6 +22,7 @@ class CashFlowFactory extends Factory
 
         return [
             'kegiatan_id' => Kegiatan::factory(),
+            'team_id' => fn (array $a) => Kegiatan::timDari($a['kegiatan_id']),
 
             'tanggal' => now()->subDays(fake()->numberBetween(1, 60))->toDateString(),
 

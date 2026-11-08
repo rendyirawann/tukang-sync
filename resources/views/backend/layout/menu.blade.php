@@ -15,6 +15,38 @@
     </div>
 
     @role('Superadmin|superadmin')
+        @php($saasMenunggu = \App\Models\TeamPayment::where('status', 'menunggu')->count())
+        <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="bottom-start"
+            class="menu-item menu-lg-down-accordion me-lg-2 {{ request()->routeIs('saas.*') ? 'here show menu-here-bg' : '' }}">
+            <span class="menu-link py-3">
+                <span class="menu-icon"><i class="ki-outline ki-crown fs-3"></i></span>
+                <span class="menu-title">Langganan</span>
+                @if ($saasMenunggu > 0)
+                    <span class="badge badge-warning ms-2">{{ $saasMenunggu }}</span>
+                @endif
+                <span class="menu-arrow d-lg-none"></span>
+            </span>
+            <div class="menu-sub menu-sub-lg-down-accordion menu-sub-lg-dropdown py-4 w-225px">
+                @foreach ([
+                    ['saas.tim.*', 'saas.tim.index', 'Tim', 'ki-people'],
+                    ['saas.bayar.*', 'saas.bayar.index', 'Pembayaran', 'ki-wallet'],
+                    ['saas.paket.*', 'saas.paket.index', 'Paket', 'ki-price-tag'],
+                    ['saas.rekening.*', 'saas.rekening.index', 'Rekening', 'ki-bank'],
+                    ['saas.kontak.*', 'saas.kontak.index', 'Kontak WhatsApp', 'ki-whatsapp'],
+                ] as [$pola, $rute, $judul, $ikon])
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs($pola) ? 'active' : '' }}" href="{{ route($rute) }}">
+                            <span class="menu-icon"><i class="ki-outline {{ $ikon }} fs-4"></i></span>
+                            <span class="menu-title">{{ $judul }}</span>
+                            @if ($rute === 'saas.bayar.index' && $saasMenunggu > 0)
+                                <span class="badge badge-light-warning ms-auto">{{ $saasMenunggu }}</span>
+                            @endif
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
         <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="bottom-start"
             class="menu-item menu-lg-down-accordion me-lg-2 {{ request()->is('admin/users*') || request()->is('admin/roles*') ? 'here show menu-here-bg' : '' }}">
             <span class="menu-link py-3">

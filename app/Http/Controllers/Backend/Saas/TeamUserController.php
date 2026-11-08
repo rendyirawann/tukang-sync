@@ -20,7 +20,7 @@ class TeamUserController extends Controller
     public function store(Request $request, Team $team): RedirectResponse
     {
         $user = $this->anggota->tambah($team, $request);
-        ActivityRecorder::log('saas', "Menambah akun {$user->email} ke tim {$team->slug}", [], $team);
+        ActivityRecorder::log('saas', "Menambah akun {$user->email} ke tim {$team->slug}", ['tim' => $team->slug]);
 
         return back()->with('success', 'Akun '.$user->name.' ditambahkan.');
     }
@@ -28,7 +28,7 @@ class TeamUserController extends Controller
     public function update(Request $request, Team $team, User $user): RedirectResponse
     {
         $this->anggota->ubah($team, $user, $request);
-        ActivityRecorder::log('saas', "Mengubah akun {$user->email} di tim {$team->slug}", [], $team);
+        ActivityRecorder::log('saas', "Mengubah akun {$user->email} di tim {$team->slug}", ['tim' => $team->slug]);
 
         return back()->with('success', 'Akun '.$user->name.' diperbarui.');
     }
@@ -36,7 +36,7 @@ class TeamUserController extends Controller
     public function destroy(Team $team, User $user): RedirectResponse
     {
         $this->anggota->hapus($team, $user);
-        ActivityRecorder::log('saas', "Menghapus akun {$user->email} dari tim {$team->slug}", [], $team);
+        ActivityRecorder::log('saas', "Menghapus akun {$user->email} dari tim {$team->slug}", ['tim' => $team->slug]);
 
         return back()->with('success', 'Akun '.$user->name.' dihapus.');
     }

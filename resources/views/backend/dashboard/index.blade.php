@@ -25,6 +25,29 @@
         $breakdownTotal = max(1, collect($breakdown)->sum('count'));
     @endphp
 
+    @if (! empty($saas))
+        <div class="row g-4 mb-6">
+            @foreach ([
+                ['Tim aktif', $saas['aktif'], 'success', 'ki-people', route('saas.tim.index', ['status' => 'aktif'])],
+                ['Menunggu bayar', $saas['menunggu'], 'warning', 'ki-time', route('saas.bayar.index', ['status' => 'menunggu'])],
+                ['Masa habis', $saas['habis'], 'danger', 'ki-calendar-remove', route('saas.tim.index', ['status' => 'habis'])],
+                ['Pendapatan bulan ini', 'Rp '.number_format($saas['pendapatan'], 0, ',', '.'), 'primary', 'ki-wallet', route('saas.bayar.index', ['status' => 'diterima'])],
+            ] as [$label, $nilai, $warna, $ikon, $url])
+                <div class="col-6 col-xl-3">
+                    <a href="{{ $url }}" class="card card-flush h-100 hover-elevate-up">
+                        <div class="card-body d-flex align-items-center gap-4 py-5">
+                            <span class="symbol symbol-45px"><span class="symbol-label bg-light-{{ $warna }}"><i class="ki-outline {{ $ikon }} fs-2 text-{{ $warna }}"></i></span></span>
+                            <div class="min-w-0">
+                                <div class="fs-2 fw-bold text-gray-900 text-truncate">{{ $nilai }}</div>
+                                <div class="text-muted fs-7">{{ $label }}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     <!--begin::Page header-->
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-6">
         <div class="min-w-0">

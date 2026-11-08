@@ -105,7 +105,7 @@ class TeamController extends Controller
         });
 
         $tim = $bayar->team;
-        ActivityRecorder::log('saas', 'Mendaftarkan tim '.$tim->nama.' ('.$tim->slug.')', [], $tim);
+        ActivityRecorder::log('saas', 'Mendaftarkan tim '.$tim->nama.' ('.$tim->slug.')', ['tim' => $tim->slug]);
 
         return redirect()->route('saas.tim.show', $tim->slug)
             ->with('success', $request->boolean('langsung_aktif')
@@ -156,7 +156,7 @@ class TeamController extends Controller
         }
 
         $team->update($data);
-        ActivityRecorder::log('saas', 'Mengubah data tim '.$team->slug, [], $team);
+        ActivityRecorder::log('saas', 'Mengubah data tim '.$team->slug, ['tim' => $team->slug]);
 
         return redirect()->route('saas.tim.show', $team->slug)->with('success', 'Data tim diperbarui.');
     }
@@ -176,7 +176,7 @@ class TeamController extends Controller
             User::anggotaTim($team->id)->get()->each(fn (User $u) => $u->tokens()->delete());
         }
 
-        ActivityRecorder::log('saas', ($aktif ? 'Mengaktifkan' : 'Menangguhkan').' tim '.$team->slug, [], $team);
+        ActivityRecorder::log('saas', ($aktif ? 'Mengaktifkan' : 'Menangguhkan').' tim '.$team->slug, ['tim' => $team->slug]);
 
         return back()->with('success', $aktif ? 'Tim diaktifkan kembali.' : 'Tim ditangguhkan; seluruh sesi anggotanya dicabut.');
     }
@@ -216,7 +216,7 @@ class TeamController extends Controller
             return $bayar;
         });
 
-        ActivityRecorder::log('saas', 'Mencatat pembayaran '.$bayar->kode.' untuk tim '.$team->slug, [], $team);
+        ActivityRecorder::log('saas', 'Mencatat pembayaran '.$bayar->kode.' untuk tim '.$team->slug, ['tim' => $team->slug]);
 
         return back()->with('success', $request->boolean('langsung_terima')
             ? 'Pembayaran dicatat dan diterima. Masa aktif: '.$team->fresh()->masaBerlakuLabel()
@@ -231,7 +231,7 @@ class TeamController extends Controller
         });
 
         $team->delete();
-        ActivityRecorder::log('saas', 'Menghapus tim '.$team->slug, [], $team);
+        ActivityRecorder::log('saas', 'Menghapus tim '.$team->slug, ['tim' => $team->slug]);
 
         return redirect()->route('saas.tim.index')->with('success', 'Tim '.$team->nama.' dihapus.');
     }

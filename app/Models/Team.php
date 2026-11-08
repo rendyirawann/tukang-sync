@@ -14,7 +14,8 @@ use Illuminate\Support\Carbon;
 
 class Team extends Model
 {
-    use SoftDeletes;
+    /** @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\TeamFactory> */
+    use \Illuminate\Database\Eloquent\Factories\HasFactory, SoftDeletes;
 
     /**
      * Huruf untuk kode tim. Tanpa 0/O dan 1/I/L supaya kode yang dibacakan
