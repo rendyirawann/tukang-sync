@@ -20,8 +20,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-| Dokumentasi Swagger: http://127.0.0.1:8000/api/documentation
-| Spesifikasi JSON:    http://127.0.0.1:8000/docs
+| Dokumentasi Swagger: /api/documentation    Spesifikasi JSON: /docs
+|
+| Semua endpoint terproteksi berjalan dalam konteks SATU tim (middleware
+| tim.api): data tim lain tidak pernah terlihat, dan saat masa langganan
+| habis permintaan yang mengubah data dijawab 402 SUBSCRIPTION_EXPIRED.
 */
 
 Route::get('/health', HealthController::class)->name('api.health');
@@ -40,7 +43,7 @@ Route::prefix('auth')->middleware('throttle:login')->group(function (): void {
 // ---------------------------------------------------------------------
 // Terproteksi
 // ---------------------------------------------------------------------
-Route::middleware('auth:sanctum')->group(function (): void {
+Route::middleware(['auth:sanctum', 'tim.api'])->group(function (): void {
 
     Route::prefix('auth')->group(function (): void {
         Route::get('/me', [AuthController::class, 'me'])->name('api.auth.me');

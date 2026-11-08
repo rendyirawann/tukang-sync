@@ -30,20 +30,6 @@ return [
 
     'disks' => [
 
-        /*
-        |------------------------------------------------------------------
-        | Lampiran bukti (foto struk belanja)
-        |------------------------------------------------------------------
-        | Sengaja PRIVAT, bukan di folder publik: isinya bukti keuangan, jadi
-        | hanya boleh diambil lewat endpoint yang memeriksa token.
-        */
-        'lampiran' => [
-            'driver' => 'local',
-            'root' => storage_path('app/lampiran'),
-            'serve' => false,
-            'throw' => false,
-        ],
-
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),

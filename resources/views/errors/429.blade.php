@@ -1,9 +1,7 @@
-{{--
-    Membayangi halaman 429 bawaan framework.
+@extends('errors.layout')
 
-    Berkas per kode WAJIB ada: framework menyediakan halamannya sendiri untuk
-    kode-kode ini, dan pencariannya menemukan berkas itu lebih dulu daripada
-    cadangan 4xx/5xx -- sehingga cadangan tidak akan pernah terpakai kalau
-    hanya mengandalkannya.
---}}
-@include('errors.layout')
+@section('title', 'Terlalu Banyak Permintaan')
+
+@section('code', '429')
+@section('heading', 'Terlalu Banyak Permintaan')
+@section('message', 'Anda mengirim terlalu banyak permintaan dalam waktu singkat. Tunggu sebentar lalu coba lagi.')

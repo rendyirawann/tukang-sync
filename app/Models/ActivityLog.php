@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\Concerns\MilikTim;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,10 +17,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ActivityLog extends Model
 {
+    use MilikTim;
+
     protected $table = 'activity_logs';
 
     protected $fillable = [
-        'user_id', 'user_nama', 'user_role',
+        'team_id', 'user_id', 'user_nama', 'user_role',
         'aksi', 'modul',
         'subjek_tipe', 'subjek_id', 'subjek_label',
         'metode', 'path', 'route_name', 'status', 'berhasil',
@@ -33,7 +36,6 @@ class ActivityLog extends Model
             'berhasil' => 'boolean',
             'status' => 'integer',
             'durasi_ms' => 'integer',
-            'subjek_id' => 'integer',
         ];
     }
 

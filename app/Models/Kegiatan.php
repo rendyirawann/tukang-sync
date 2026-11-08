@@ -12,6 +12,7 @@ use App\Services\TaksasiResult;
 use Database\Factories\KegiatanFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\MilikTim;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Kegiatan extends Model
 {
     /** @use HasFactory<KegiatanFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, MilikTim, SoftDeletes;
 
     protected $table = 'kegiatan';
 
@@ -71,6 +72,22 @@ class Kegiatan extends Model
     // ------------------------------------------------------------------
     // Relasi
     // ------------------------------------------------------------------
+
+    public function bangunan(): HasMany
+    {
+        return $this->hasMany(Bangunan::class)->orderBy('urutan')->orderBy('id');
+    }
+
+    /** Item RAB proyek ini. */
+    public function pekerjaan(): HasMany
+    {
+        return $this->hasMany(Pekerjaan::class);
+    }
+
+    public function logHarian(): HasMany
+    {
+        return $this->hasMany(LogHarian::class)->orderByDesc('tanggal');
+    }
 
     public function cashFlows(): HasMany
     {

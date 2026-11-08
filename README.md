@@ -1,367 +1,59 @@
-# Transaksi Pekerjaan — API
-
-API taksasi pekerjaan konstruksi: menghitung bagi hasil dari nilai pekerjaan
-(pagu) sampai jatah bersih per owner, mencatat arus kas dan rincian belanja
-per kegiatan, lalu menerbitkan laporannya sebagai PDF.
-
-Menggantikan spreadsheet "Taksasi Pekerjaan". Dipakai oleh aplikasi mobile
-Flutter (repo terpisah) yang seluruh datanya berasal dari API ini.
-
-- **Laravel 13** · PHP 8.3 · PostgreSQL
-- Autentikasi **Laravel Sanctum** (bearer token) + login sidik jari
-- Dokumentasi **Swagger / OpenAPI** — 35 path, 49 operasi
-- **82 test**, 403 assertion
-- Produksi: **Laravel Octane** (FrankenPHP) di belakang nginx, Redis untuk
-  cache/session/antrean — lihat **[DEPLOY.md](DEPLOY.md)**
-
-> Octane hanya dipakai di server. Pengembangan lokal tetap
-> `php artisan serve`, karena FrankenPHP/Swoole/RoadRunner tidak berjalan di
-> Windows. Yang berbeda hanya cara aplikasi disajikan, bukan kodenya.
-
----
-
-## Rumus perhitungan
-
-Seluruh perhitungan berada di satu kelas, `App\Services\TaksasiCalculator`,
-dan dikunci oleh 15 unit test. Aplikasi mobile tidak pernah menghitung sendiri
-— ia memanggil `POST /api/kegiatan/preview` — sehingga tidak mungkin ada dua
-versi rumus yang berbeda.
-
-```
-PPN            = pagu × rate_ppn %          ← basis PAGU
-PPh            = pagu × rate_pph %          ← basis PAGU
-Netto          = pagu − PPN − PPh
-
-Rencana        = netto × rate_rencana %
-Kewajiban      = netto × rate_kewajiban %
-Administrasi   = netto × rate_administrasi %
-B. Perusahaan  = netto × rate_perusahaan %
-
-Profit Kotor   = netto − Kewajiban − Pelaksanaan Real − Administrasi − B. Perusahaan
-Investor       = profit_kotor × rate_investor %
-Profit Bersih  = profit_kotor − Investor
-Per Owner      = profit_bersih ÷ jml_owner
-```
-
-**Contoh terverifikasi** (baris "A" pada spreadsheet asli): pagu 400.000.000 →
-netto 349.000.000 → profit kotor 88.995.000 → **per owner Rp14.832.500**.
-
-Tiga keputusan yang perlu diketahui:
-
-1. **PPN & PPh dari pagu, sisanya dari netto.** 60 + 12 + 1 + 1,5 = 74,5%
-   beban, sisa 25,5% profit kotor — totalnya tepat 100% dari netto, yang
-   membuktikan netto adalah basis tunggalnya.
-2. **Profit bersih adalah selisih, bukan pembulatan ulang.**
-   `investor + profit_bersih` selalu sama dengan `profit_kotor`.
-3. **Pembagian ke owner memakai `intdiv()`, bukan `floor()`.** Untuk angka
-   positif hasilnya sama, tetapi saat rugi `floor(-100/3) = -34` membuat
-   3 × -34 = -102 — kerugian yang dibagikan jadi lebih besar dari kerugian
-   sebenarnya. `intdiv()` memotong ke arah nol; sisa 0–2 rupiah masuk kas
-   perusahaan sebagai `sisa_pembulatan`.
-
-Semua nilai uang adalah `numeric(18,0)` — rupiah bulat, tanpa sen.
-
-### Biaya Pelaksanaan Real — mode hibrida
-
-Kolom ini bisa diisi manual **atau** dibiarkan kosong. Kalau kosong:
-
-```
-Biaya Pelaksanaan Real = Σ rincian bahan baku + Σ kas kategori "upah"
-```
-
-Kalau keduanya masih nol, nilainya **nol** — bukan diproyeksikan dari Rencana.
-Proyeksi itu pernah ada supaya kolom profit tidak kosong pada kegiatan baru,
-tetapi hasilnya menyesatkan: angkanya terbaca seolah belanjanya sudah terjadi
-padahal belum ada satu pun yang dicatat. Sumber yang aktif terlihat di
-`pelaksanaan_real_sumber` (`manual` / `realisasi`).
-
-Bahan baku **tidak** dicatat sebagai arus kas — angkanya berasal dari tabel
-`bahan_baku_items`, satu baris per barang, dengan `subtotal` yang selalu
-dihitung server dari `qty × harga_satuan`. Karena itu kategori kas `bahan`
-dikeluarkan dari daftar kategori yang bisa dipilih dan validasi menolaknya.
-Setiap perubahan item memicu `Kegiatan::recalculate()`, jadi taksasi tidak
-pernah tertinggal dari rinciannya.
-
----
-
-### Kegiatan baru dibuat kosong
-
-`POST /api/kegiatan` hanya butuh `nama` dan `pagu`. Persentase **tidak** diisi
-apa pun — tidak dari default pengaturan, tidak dari default kolom database.
-Seluruh rate bernilai nol sampai pengguna menentukannya sendiri di halaman
-detail. Begitu PPN dan PPh diisi, semua angka lain terhitung otomatis persis
-seperti di spreadsheet.
-
-Konsekuensinya perlu ditangani klien: dengan rate nol, rumusnya menghasilkan
-`profit_kotor = pagu` — benar secara aritmetika, tetapi belum berarti apa-apa.
-Karena itu resource mengirim **`rate_terisi`**:
-
-```json
-{ "rate_terisi": false }
-```
-
-`false` berarti persentasenya belum pernah ditentukan, dan bagian taksasi
-sebaiknya ditampilkan sebagai "belum diisi" alih-alih sebagai hasil
-perhitungan. Aplikasi mobile memakai penanda ini untuk menyembunyikan kartu
-Rincian Transaksi, Pembagian Hasil, dan Persentase sampai rate-nya terisi.
-
-Ada tiga tempat yang dulu mengisi rate diam-diam dan semuanya sudah dicabut:
-`KegiatanRequest::prepareForValidation()`, penggabungan `RateDefaults` di
-`KegiatanController::store()`, dan default kolom pada migrasi (lihat migrasi
-`reset_default_rate_kegiatan`). Endpoint pratinjau juga menghitung persis apa
-yang dikirim, tanpa menambahkan default.
-
-## Data master
-
-Daftar acuan yang dikelola superadmin, dipakai sebagai **pilihan cepat** pada
-form — bukan pembatas. Kolom satuan, toko, dan sumber dana tetap bisa diketik
-bebas; daftar ini yang membuat ejaannya konsisten pada pemakaian sehari-hari.
-
-| Jenis | Isi | Dipakai di |
-|---|---|---|
-| `satuan` | sak, m3, batang, kg, … | Rincian bahan baku |
-| `toko` | Nama toko / supplier | Rincian bahan baku |
-| `sumber_dana` | APBD, APBN, Dana Desa, … | Data kegiatan |
-
-Semua peran **membaca** (pilihannya dibutuhkan saat mengisi form); hanya
-superadmin **menambah**, supaya daftar tidak lekas penuh varian ejaan yang
-sama. Menghapus pilihan memakai soft delete dan **tidak mengubah data lama** —
-bahan baku menyimpan teks satuan dan tokonya, bukan tautan ke daftar ini.
-
-**Yang sengaja TIDAK dijadikan data master:** kategori kas dan status kegiatan.
-Keduanya enum di kode karena terikat rumus — `KategoriKas::pelaksanaanReal()`
-dipakai langsung pada query `Kegiatan::totalUpah()`. Kalau daftarnya bisa
-disunting, seseorang bisa mengubah belanja mana yang dihitung sebagai Biaya
-Pelaksanaan Real tanpa sadar, dan angka profit ikut bergeser diam-diam.
-
-## Peran & hak akses
-
-Dua peran, ditegakkan di satu tempat (`App\Support\Izin`) lalu dikirim ke
-klien sebagai objek `izin` pada setiap respons profil dan detail kegiatan.
-Aplikasi **tidak** menyimpulkan hak akses dari nama peran — ia membaca `izin`
-itu — sehingga tombol yang tampil selalu sama dengan yang benar-benar
-diizinkan server.
-
-| Tindakan | Superadmin | Petugas |
-|---|---|---|
-| Melihat semua data (kegiatan, kas, laporan, PDF) | ya | ya |
-| Membuat / mengubah / menghapus kegiatan | ya | — |
-| Rincian bahan baku + unggah struk | ya | **ya** |
-| Kas kategori `upah` & `administrasi` | ya | **ya** |
-| Kas kategori lain (termin, kewajiban, pajak, bagi hasil) | ya | — |
-| Mengubah default rate / pengaturan | ya | — |
-| Mengelola akun petugas | ya | — |
-| Mengelola data master (satuan, toko, sumber dana) | ya | — |
-| Membaca data master sebagai pilihan form | ya | ya |
-| Melihat jejak aktivitas akun lain | ya | — |
-| Melihat jejak aktivitas sendiri | ya | ya |
-
-**Superadmin hanya satu, dijaga secara struktural, bukan dengan validasi:**
-`UserRequest::dataPetugas()` selalu menetapkan `role = petugas` sehingga field
-`role` dari klien diabaikan, dan `show`/`update`/`destroy` pada
-`/api/pengguna/{id}` menolak akun superadmin dengan 403. Satu-satunya cara
-membuat superadmin adalah lewat seeder.
-
-### Satu sesi per akun
-
-Login baru mencabut seluruh token lama, sehingga masuk di perangkat lain
-otomatis mengeluarkan perangkat sebelumnya. Alasannya bukan teknis melainkan
-akuntabilitas: setiap tindakan tercatat atas nama satu akun, dan satu akun yang
-aktif di beberapa perangkat sekaligus membuat jejaknya tidak lagi bisa
-dipertanggungjawabkan ke satu orang.
-
-Aturannya diletakkan di `AuthController::tokenPayload()` — satu-satunya tempat
-token diterbitkan — supaya jalur login apa pun yang ditambahkan nanti ikut
-terkena.
-
-Token sidik jari **tidak** ikut dicabut: ia kredensial milik perangkat, bukan
-sesi. Perangkat yang terlempar tetap bisa masuk kembali dengan sidik jarinya,
-dan saat itu perangkat yang lain yang keluar. Itulah beda dua tombol keluar di
-aplikasi: **Keluar** hanya mencabut sesi, **Keluar dan lupakan perangkat ini**
-juga menghapus token sidik jarinya.
-
-## Jejak aktivitas
-
-Middleware `CatatAktivitas` dipasang ke seluruh grup `api`, bukan dipanggil
-per controller — jadi endpoint yang ditambahkan nanti ikut tercatat tanpa
-perlu diingat penulisnya. Setiap permintaan non-GET dicatat lengkap dengan
-pelaku, modul, subjek, status HTTP, durasi, dan IP. Percobaan yang **ditolak**
-(403) juga tercatat, karena justru itu yang perlu terlihat.
-
-Nama dan peran pelaku **disalin** ke baris log, tidak di-join ke tabel `users`,
-supaya jejak lama tetap benar walau akunnya berganti nama atau dihapus.
-
-Payload permintaan disimpan setelah disaring: `password`,
-`password_confirmation`, `current_password`, `biometric_token`,
-`access_token`, dan `token` dibuang; berkas unggahan diganti penanda
-`[berkas: nama, N KB]`; payload di atas 8000 byte dipotong.
-
----
-
-## Menjalankan
-
-### Prasyarat
-
-- PHP **8.3+** (Laravel 13 mensyaratkannya)
-- PostgreSQL — proyek ini memakai port **5433**
-- Composer 2.x
-
-### Langkah
-
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-
-# Sesuaikan DB_* di .env, lalu:
-createdb -p 5433 o_taksasi        # atau buat lewat pgAdmin
-php artisan migrate --seed
-
-php artisan serve --host=127.0.0.1 --port=8000
-```
-
-| Keperluan | URL |
-|---|---|
-| Dokumentasi Swagger | http://127.0.0.1:8000/api/documentation |
-| Spesifikasi OpenAPI (JSON) | http://127.0.0.1:8000/docs |
-| Cek kesehatan API | http://127.0.0.1:8000/api/health |
-
-Regenerate dokumentasi setelah mengubah anotasi:
-
-```bash
-php artisan l5-swagger:generate
-```
-
-### Akun hasil seeder
-
-> **Hanya untuk pengembangan lokal.** Ganti sebelum dipakai di server mana
-> pun — password di bawah ada di repo publik ini.
-
-| Peran | Nama | Email | Password |
-|---|---|---|---|
-| Superadmin | Dormansyah | `superadmin@taksasi.test` | `password123` |
-| Petugas | Sinta Pratiwi | `sinta@taksasi.test` | `password123` |
-| Petugas | Rudi Hartono | `rudi@taksasi.test` | `password123` |
-
-`db:seed` juga membuat 3 kegiatan contoh. Seedernya dipecah supaya bisa
-dijalankan sendiri:
-
-```bash
-php artisan db:seed --class=MasterDataSeeder      # satuan, toko, sumber dana
-php artisan db:seed --class=UserSeeder            # akun
-php artisan db:seed --class=KegiatanContohSeeder  # 3 kegiatan contoh
-```
-
-Di server, jalankan dua yang pertama saja — data contoh hanya mengotori
-laporan di sana.
-
-### Perintah berguna
-
-```bash
-php artisan test                  # 91 test, 428 assertion
-./vendor/bin/pint                 # format kode
-php artisan route:list --path=api # daftar endpoint
-
-# Mengosongkan seluruh data kegiatan; akun & data master dipertahankan.
-# Berkas fisik lampiran ikut dihapus, dan urutan id kembali dari 1.
-php artisan kegiatan:bersihkan
-php artisan kegiatan:bersihkan --aktivitas   # jejak kegiatan ikut dihapus
-php artisan kegiatan:bersihkan --contoh      # lalu isi ulang 3 contoh
-```
-
-> Pembersihan data berupa perintah artisan, **bukan migrasi**. Migrasi
-> dijalankan otomatis setiap deploy, jadi migrasi yang menghapus data akan
-> mengosongkan kegiatan berulang kali — kehilangan yang tidak bisa dipulihkan.
-> Cara mengosongkannya di server ada di **[DEPLOY.md](DEPLOY.md)**.
-
----
-
-## Ringkasan endpoint
-
-Semua respons memakai envelope tunggal:
-
-```json
-{ "success": true, "message": "...", "data": {}, "meta": {} }
-```
-
-Error memakai bentuk yang sama dengan `success: false`, plus `code`
-(`INVALID_CREDENTIALS`, `VALIDATION_ERROR`, `MODEL_NOT_FOUND`,
-`UNAUTHENTICATED`, `FORBIDDEN`, `LAMPIRAN_DUPLIKAT`, …) dan `errors` per kolom
-pada 422.
-
-| Metode | Path | Keterangan |
-|---|---|---|
-| GET | `/api/health` | Cek kesehatan (publik) |
-| POST | `/api/auth/login` | Login email + password |
-| POST | `/api/auth/biometric/login` | Login dengan token sidik jari |
-| POST | `/api/auth/biometric/enable` | Daftarkan sidik jari (butuh password) |
-| DELETE | `/api/auth/biometric` | Cabut token sidik jari |
-| GET | `/api/auth/me` | Profil pengguna aktif + `izin` |
-| PUT | `/api/auth/profil` | Lengkapi profil sendiri |
-| POST | `/api/auth/change-password` | Ganti password |
-| POST | `/api/auth/logout` | Cabut access token |
-| GET | `/api/referensi` | Semua enum aplikasi |
-| GET | `/api/kegiatan` | Daftar (cari, filter, urut, paginasi) |
-| POST | `/api/kegiatan` | Tambah — cukup `nama` + `pagu` |
-| POST | `/api/kegiatan/preview` | **Hitung tanpa simpan** (pratinjau form) |
-| GET/PUT/PATCH/DELETE | `/api/kegiatan/{id}` | Detail / ubah / hapus |
-| GET/POST | `/api/kegiatan/{id}/bahan-baku` | Rincian bahan baku + totalnya |
-| PUT/DELETE | `/api/bahan-baku/{id}` | Ubah / hapus satu item |
-| GET/POST | `/api/kegiatan/{id}/lampiran` | Bukti belanja (multipart, maks 8 MB) |
-| GET | `/api/lampiran/{id}/berkas` | Ambil isi berkas (butuh token) |
-| DELETE | `/api/lampiran/{id}` | Hapus lampiran |
-| GET/POST | `/api/kegiatan/{id}/cash-flows` | Kas satu kegiatan |
-| GET | `/api/kegiatan/{id}/cash-flows/rekap` | Rekap kas per kategori |
-| GET | `/api/cash-flows` | Kas lintas kegiatan |
-| GET/PUT/DELETE | `/api/cash-flows/{id}` | Detail / ubah / hapus |
-| GET/POST | `/api/pengguna` | Daftar / buat akun petugas — superadmin |
-| GET/PUT/DELETE | `/api/pengguna/{id}` | Detail / ubah / nonaktifkan petugas |
-| GET | `/api/master` | Semua daftar acuan sekaligus |
-| GET/POST | `/api/master/{jenis}` | Isi satu daftar / tambah pilihan |
-| PUT/DELETE | `/api/master/{id}` | Ubah / hapus pilihan — superadmin |
-| GET | `/api/aktivitas/saya` | Jejak aktivitas sendiri |
-| GET | `/api/aktivitas` | Jejak seluruh akun — superadmin |
-| GET | `/api/aktivitas/ringkasan` | Hitungan per modul & per akun — superadmin |
-| GET | `/api/laporan/ringkasan` | Angka dashboard + tren kas |
-| GET | `/api/laporan/rekap-kegiatan` | Tabel rekap + baris TOTAL |
-| GET | `/api/laporan/kegiatan/{id}/pdf` | PDF taksasi satu kegiatan |
-| GET | `/api/laporan/rekap-kegiatan/pdf` | PDF rekap (landscape) |
-| GET | `/api/laporan/arus-kas/pdf` | PDF buku kas (landscape) |
-
-Tiga hal yang perlu diketahui saat memakai endpoint ini:
-
-- **Membuat kegiatan cukup `nama` + `pagu`.** Persentase yang tidak dikirim
-  diisi server dari default pengaturan (`RateDefaults::all()`), bukan nol —
-  kalau nol, taksasi kegiatan baru langsung menampilkan profit yang salah.
-  `PUT`/`PATCH` memakai aturan `sometimes`, jadi sisa datanya bisa dilengkapi
-  sebagian-sebagian.
-
-- **Endpoint bahan baku membalas rincian lengkap, bukan hanya item yang
-  berubah.** `POST`, `PUT`, dan `DELETE` semuanya mengembalikan
-  `total_bahan_baku`, `total_upah`, dan `total_pelaksanaan` terbaru, sehingga
-  klien tidak perlu menjumlah ulang sendiri. `subtotal` tidak boleh dikirim
-  klien — server menghitungnya dari `qty × harga_satuan`.
-
-- **Berkas lampiran tidak punya URL publik.** `url_berkas` menunjuk
-  `/api/lampiran/{id}/berkas`, yang memeriksa token. Berkas identik pada
-  kegiatan yang sama ditolak `409 LAMPIRAN_DUPLIKAT` berdasarkan hash SHA-256.
-
----
-
-## Yang masih perlu diputuskan
-
-Tiga hal diimplementasikan dengan asumsi yang bisa diubah cepat:
-
-1. **Bagi hasil investor** — apakah persentasenya sudah termasuk pengembalian
-   modal, atau modal dikembalikan terpisah? Saat ini `rate_investor` murni
-   persentase dari profit kotor, dan setoran modal dicatat sebagai kas masuk
-   kategori `modal_investor` tanpa memengaruhi rumus.
-2. **Kondisi rugi** — saat ini investor ikut menanggung sesuai persentasenya.
-   Kalau seharusnya tidak, yang perlu diubah hanya satu baris di
-   `TaksasiCalculator::hitung()`.
-3. **Sisa pembulatan** — sisa 0–2 rupiah saat ini masuk kas perusahaan. Kalau
-   seharusnya ke owner pertama, ubah pembagiannya di kalkulator yang sama.
-
-Belum termasuk: notifikasi push, ekspor Excel, dan persetujuan berjenjang
-(mis. rincian bahan baku petugas perlu disetujui superadmin sebelum ikut
-menghitung).
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
+
+## About Laravel
+
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
+
+## Learning Laravel
+
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+
+## Laravel Sponsors
+
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+
+### Premium Partners
+
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
+
+## Contributing
+
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

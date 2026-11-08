@@ -1,9 +1,7 @@
-{{--
-    Membayangi halaman 403 bawaan framework.
+@extends('errors.layout')
 
-    Berkas per kode WAJIB ada: framework menyediakan halamannya sendiri untuk
-    kode-kode ini, dan pencariannya menemukan berkas itu lebih dulu daripada
-    cadangan 4xx/5xx -- sehingga cadangan tidak akan pernah terpakai kalau
-    hanya mengandalkannya.
---}}
-@include('errors.layout')
+@section('title', 'Akses Ditolak')
+
+@section('code', '403')
+@section('heading', 'Akses Ditolak')
+@section('message', 'Anda tidak memiliki izin untuk membuka halaman ini. Hubungi administrator bila menurut Anda ini keliru.')

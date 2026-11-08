@@ -1,9 +1,7 @@
-{{--
-    Membayangi halaman 419 bawaan framework.
+@extends('errors.layout')
 
-    Berkas per kode WAJIB ada: framework menyediakan halamannya sendiri untuk
-    kode-kode ini, dan pencariannya menemukan berkas itu lebih dulu daripada
-    cadangan 4xx/5xx -- sehingga cadangan tidak akan pernah terpakai kalau
-    hanya mengandalkannya.
---}}
-@include('errors.layout')
+@section('title', 'Sesi Kedaluwarsa')
+
+@section('code', '419')
+@section('heading', 'Sesi Kedaluwarsa')
+@section('message', 'Halaman ini terbuka terlalu lama. Silakan muat ulang lalu coba lagi.')

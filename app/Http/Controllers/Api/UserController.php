@@ -124,7 +124,7 @@ class UserController extends Controller
             return $this->tolak();
         }
 
-        if ($user->isSuperadmin()) {
+        if ($user->isPengelola()) {
             return $this->tolakSuperadmin();
         }
 
@@ -149,7 +149,7 @@ class UserController extends Controller
     )]
     public function update(UserRequest $request, User $user): JsonResponse
     {
-        if ($user->isSuperadmin()) {
+        if ($user->isPengelola()) {
             return $this->tolakSuperadmin();
         }
 
@@ -194,7 +194,7 @@ class UserController extends Controller
             return $this->tolak();
         }
 
-        if ($user->isSuperadmin()) {
+        if ($user->isPengelola()) {
             return $this->tolakSuperadmin();
         }
 

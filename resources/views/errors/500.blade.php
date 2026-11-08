@@ -1,9 +1,7 @@
-{{--
-    Membayangi halaman 500 bawaan framework.
+@extends('errors.layout')
 
-    Berkas per kode WAJIB ada: framework menyediakan halamannya sendiri untuk
-    kode-kode ini, dan pencariannya menemukan berkas itu lebih dulu daripada
-    cadangan 4xx/5xx -- sehingga cadangan tidak akan pernah terpakai kalau
-    hanya mengandalkannya.
---}}
-@include('errors.layout')
+@section('title', 'Terjadi Kesalahan')
+
+@section('code', '500')
+@section('heading', 'Terjadi Kesalahan')
+@section('message', 'Server mengalami kendala saat memproses permintaan Anda. Tim kami sudah diberi tahu.')

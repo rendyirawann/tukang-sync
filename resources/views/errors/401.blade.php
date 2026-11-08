@@ -1,9 +1,7 @@
-{{--
-    Membayangi halaman 401 bawaan framework.
+@extends('errors.layout')
 
-    Berkas per kode WAJIB ada: framework menyediakan halamannya sendiri untuk
-    kode-kode ini, dan pencariannya menemukan berkas itu lebih dulu daripada
-    cadangan 4xx/5xx -- sehingga cadangan tidak akan pernah terpakai kalau
-    hanya mengandalkannya.
---}}
-@include('errors.layout')
+@section('title', 'Belum Terautentikasi')
+
+@section('code', '401')
+@section('heading', 'Belum Terautentikasi')
+@section('message', 'Anda perlu masuk terlebih dahulu untuk mengakses halaman ini.')

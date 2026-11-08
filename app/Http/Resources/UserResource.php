@@ -18,10 +18,18 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $this->role,
+            'role' => $this->peranLama(),
+            'peran' => $this->peran?->value,
+            'tim' => $this->team ? [
+                'kode' => $this->team->slug,
+                'nama' => $this->team->nama,
+                'hanya_baca' => $this->team->hanyaBaca(),
+                'aktif_sampai' => $this->team->aktif_sampai?->toIso8601String(),
+                'lifetime' => $this->team->lifetime,
+            ] : null,
             'role_label' => $this->roleLabel(),
-            'is_superadmin' => $this->isSuperadmin(),
-            'is_petugas' => $this->isPetugas(),
+            'is_superadmin' => $this->isPengelola(),
+            'is_petugas' => $this->isPelaksana(),
 
             // Dikirim bersama profil agar aplikasi tahu tombol mana yang
             // perlu ditampilkan, memakai aturan yang sama persis dengan
@@ -35,7 +43,7 @@ class UserResource extends JsonResource
             'biometric_device_name' => $this->biometric_device_name,
             'biometric_expires_at' => $this->biometric_expires_at?->toIso8601String(),
             'password_changed_at' => $this->password_changed_at?->toIso8601String(),
-            'last_login_at' => $this->last_login_at?->toIso8601String(),
+            'last_login_at' => $this->last_login?->toIso8601String(),
         ];
     }
 }

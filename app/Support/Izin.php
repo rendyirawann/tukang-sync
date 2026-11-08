@@ -47,19 +47,19 @@ final class Izin
     /** Membuat, mengubah, menghapus kegiatan beserta persentasenya. */
     public static function kelolaKegiatan(?User $user): bool
     {
-        return $user?->isSuperadmin() ?? false;
+        return $user?->isPengelola() ?? false;
     }
 
     /** Mengubah nilai default persentase di Pengaturan. */
     public static function kelolaPengaturan(?User $user): bool
     {
-        return $user?->isSuperadmin() ?? false;
+        return $user?->isPengelola() ?? false;
     }
 
     /** Membuat dan mengubah akun petugas. */
     public static function kelolaPengguna(?User $user): bool
     {
-        return $user?->isSuperadmin() ?? false;
+        return $user?->isPengelola() ?? false;
     }
 
     /**
@@ -77,12 +77,12 @@ final class Izin
      */
     public static function kelolaMaster(?User $user): bool
     {
-        return $user?->isSuperadmin() ?? false;
+        return $user?->isPengelola() ?? false;
     }
 
     public static function lihatAktivitasSemua(?User $user): bool
     {
-        return $user?->isSuperadmin() ?? false;
+        return $user?->isPengelola() ?? false;
     }
 
     // ------------------------------------------------------------------
@@ -92,7 +92,7 @@ final class Izin
     /** Mengisi rincian bahan baku per item dan lampiran struknya. */
     public static function kelolaBahanBaku(?User $user): bool
     {
-        return $user !== null && ($user->isSuperadmin() || $user->isPetugas());
+        return $user !== null && ($user->isPengelola() || $user->isPelaksana());
     }
 
     public static function kelolaLampiran(?User $user): bool
@@ -111,11 +111,11 @@ final class Izin
             return false;
         }
 
-        if ($user->isSuperadmin()) {
+        if ($user->isPengelola()) {
             return true;
         }
 
-        if (! $user->isPetugas()) {
+        if (! $user->isPelaksana()) {
             return false;
         }
 
@@ -135,14 +135,14 @@ final class Izin
             return [];
         }
 
-        if ($user->isSuperadmin()) {
+        if ($user->isPengelola()) {
             return array_map(
                 fn (KategoriKas $k) => $k->value,
                 KategoriKas::dapatDipilih(),
             );
         }
 
-        return $user->isPetugas() ? self::KATEGORI_PETUGAS : [];
+        return $user->isPelaksana() ? self::KATEGORI_PETUGAS : [];
     }
 
     /**

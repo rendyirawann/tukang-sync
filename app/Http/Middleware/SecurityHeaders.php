@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Middleware;
 
 use Closure;
@@ -9,94 +7,88 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Header keamanan untuk seluruh respons.
+ * Applies a pragmatic set of browser security headers.
  *
- * Dipasang di aplikasi, BUKAN di nginx. Kalau keduanya memasang header yang
- * sama, browser menerima dua nilai untuk X-Frame-Options -- dan menganggapnya
- * tidak sah, sehingga perlindungannya justru hilang. Satu sumber saja, dan
- * sumber itu ikut berpindah bersama kodenya ke server mana pun.
- *
- * Ketatnya sengaja dijaga di tingkat yang tidak merusak apa pun:
- *
- * - `'unsafe-inline'` tetap diizinkan untuk skrip dan gaya. Swagger UI
- *   menyisipkan gaya dari dalam JavaScript-nya saat berjalan; melarangnya
- *   membuat halaman dokumentasi tampil rusak tanpa satu pun pesan galat.
- *   Risikonya kecil di sini karena server ini tidak pernah merender masukan
- *   pengguna sebagai HTML -- seluruh jawabannya JSON, dan dua halaman HTML
- *   yang ada isinya tetap.
- * - Sisanya dikunci: tidak ada sumber luar, tidak bisa dibingkai, tidak ada
- *   plugin, dan form tidak bisa diarahkan ke domain lain.
+ * The policy is deliberately permissive enough for the Metronic theme
+ * (inline scripts/styles, Google Fonts, CDN plugins, Reverb websockets)
+ * while still closing off clickjacking, MIME sniffing, referrer leakage
+ * and cross-origin form hijacking.
  */
 class SecurityHeaders
 {
-    /**
-     * Ditulis sekali di sini supaya tidak ada dua daftar yang bisa berbeda.
-     *
-     * @var array<int, string>
-     */
-    private const CSP = [
-        "default-src 'self'",
-        "script-src 'self' 'unsafe-inline'",
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data:",
-        "font-src 'self' data:",
-        "connect-src 'self'",
-        "form-action 'self'",
-        "base-uri 'self'",
-        "object-src 'none'",
-        "frame-ancestors 'none'",
-    ];
-
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
 
-        $h = $response->headers;
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $response->headers->set('X-Permitted-Cross-Domain-Policies', 'none');
+        $response->headers->set('Cross-Origin-Resource-Policy', 'same-site');
+        $response->headers->set(
+            'Permissions-Policy',
+            'accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), '
+            . 'geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()'
+        );
 
-        $h->set('Content-Security-Policy', implode('; ', self::CSP));
+        // Hide server fingerprints where PHP lets us.
+        $response->headers->remove('X-Powered-By');
+        $response->headers->remove('Server');
 
-        // Menutup celah "browser menebak jenis berkas": tanpa ini, unggahan
-        // yang isinya HTML bisa dieksekusi sebagai HTML meski dikirim dengan
-        // Content-Type gambar.
-        $h->set('X-Content-Type-Options', 'nosniff');
-
-        // frame-ancestors di CSP sudah menanganinya untuk browser modern;
-        // baris ini untuk yang belum mengenal CSP.
-        $h->set('X-Frame-Options', 'DENY');
-
-        $h->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-
-        // Server ini tidak butuh satu pun kemampuan perangkat. Menyebutnya
-        // kosong berarti halaman yang disisipkan pun tidak bisa memintanya.
-        $h->set('Permissions-Policy', 'geolocation=(), camera=(), microphone=(), payment=(), usb=()');
-
-        $h->set('Cross-Origin-Opener-Policy', 'same-origin');
-        $h->set('Cross-Origin-Resource-Policy', 'same-origin');
-
-        // HSTS HANYA saat permintaannya benar-benar lewat HTTPS.
-        //
-        // Mengirimnya di HTTP polos bukan sekadar sia-sia: pemasangan di
-        // IP tanpa sertifikat akan terkunci: browser mengingat host itu wajib
-        // HTTPS, lalu menolak membukanya lagi -- dan ingatan itu tidak bisa
-        // dibatalkan dari sisi server.
-        if ($request->secure()) {
-            $h->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        if ($request->secure() && config('security.hsts', false)) {
+            $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
-        // Nama kerangka kerja tidak perlu diumumkan. Bukan pengamanan
-        // sungguhan, tetapi tidak ada gunanya mempermudah pemindai otomatis.
-        $h->remove('X-Powered-By');
-        $h->remove('Server');
+        if (config('security.csp.enabled', true) && $this->isHtml($response)) {
+            $header = config('security.csp.report_only', false)
+                ? 'Content-Security-Policy-Report-Only'
+                : 'Content-Security-Policy';
 
-        // X-Powered-By ditambahkan PHP di lapisan yang lebih bawah daripada
-        // respons Laravel, jadi membuangnya dari bag di atas saja tidak cukup.
-        // Yang benar-benar mematikannya adalah expose_php = Off di php.ini
-        // (dipasang setup-server.sh); baris ini menutupnya juga di lingkungan
-        // yang setelan itu belum berlaku, mis. komputer sendiri.
-        if (! headers_sent()) {
-            header_remove('X-Powered-By');
+            $response->headers->set($header, $this->policy());
+        }
+
+        // Never let a browser or proxy cache an authenticated page.
+        if ($request->user() !== null && $this->isHtml($response)) {
+            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+            $response->headers->set('Pragma', 'no-cache');
         }
 
         return $response;
+    }
+
+    private function isHtml(Response $response): bool
+    {
+        return str_contains((string) $response->headers->get('Content-Type', 'text/html'), 'text/html');
+    }
+
+    private function policy(): string
+    {
+        $extra = array_filter(array_map('trim', (array) config('security.csp.extra_hosts', [])));
+        $hosts = $extra === [] ? '' : ' ' . implode(' ', $extra);
+
+        $directives = [
+            "default-src 'self'",
+            // Metronic ships inline bootstrapping code and some plugins eval templates.
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com" . $hosts,
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com" . $hosts,
+            "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+            // Avatars, generated branding, data: sprites and blob: canvas exports.
+            "img-src 'self' data: blob: https:",
+            "media-src 'self' data: blob:",
+            // Same-origin XHR plus the Reverb websocket.
+            "connect-src 'self' ws: wss: https:" . $hosts,
+            "worker-src 'self' blob:",
+            "frame-src 'self'",
+            "frame-ancestors 'self'",
+            "form-action 'self'",
+            "base-uri 'self'",
+            "object-src 'none'",
+        ];
+
+        if (config('security.csp.upgrade_insecure', false)) {
+            $directives[] = 'upgrade-insecure-requests';
+        }
+
+        return implode('; ', $directives);
     }
 }

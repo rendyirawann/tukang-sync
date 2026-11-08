@@ -1,9 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 use App\Http\Middleware\CatatAktivitas;
-use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\TimApi;
+use App\Http\Middleware\TimWeb;
+use App\Http\Middleware\WajibPlatformAdmin;
 use App\Support\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -24,75 +24,95 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        /*
-        |------------------------------------------------------------------
-        | Header keamanan pada SETIAP respons
-        |------------------------------------------------------------------
-        | Dipasang global, bukan per grup: halaman status, halaman galat,
-        | dokumentasi Swagger, dan seluruh jawaban API sama-sama perlu.
-        | Dipasang di sini pula -- bukan di nginx -- supaya tidak ada dua
-        | sumber yang bisa mengirim nilai berbeda untuk header yang sama.
-        */
-        $middleware->append(SecurityHeaders::class);
+    ->withMiddleware(function (Middleware $middleware) {
 
-        /*
-        |------------------------------------------------------------------
-        | Batas laju umum
-        |------------------------------------------------------------------
-        | Longgar untuk pemakaian wajar, tetapi memotong skrip yang menembak
-        | tanpa henti. Batas khusus untuk login jauh lebih ketat dan
-        | dipasang langsung di rutenya. Keduanya dijelaskan di
-        | RateLimitServiceProvider.
-        */
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'forbid-banned-user' => \Cog\Laravel\Ban\Http\Middleware\ForbidBannedUser::class,
+
+            // SaaS
+            'platform' => WajibPlatformAdmin::class,
+            'tim' => TimWeb::class,
+            'tim.api' => TimApi::class,
+        ]);
+
+        // Runs on every request, including assets served through PHP:
+        // header hardening first, then the URL-signature guard.
+        $middleware->prepend([
+            \App\Http\Middleware\ResetTimAktif::class,
+            \App\Http\Middleware\SecurityHeaders::class,
+            \App\Http\Middleware\BlockSuspiciousRequests::class,
+        ]);
+
+        $middleware->web(append: [
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \App\Http\Middleware\SanitizeInput::class,
+            \App\Http\Middleware\CheckMaintenanceMode::class,
+            'throttle:web',
+        ]);
+
+        $middleware->api(prepend: [
+            \App\Http\Middleware\SanitizeInput::class,
+        ]);
+
         $middleware->appendToGroup('api', 'throttle:api');
 
-        // Dipasang ke seluruh grup api agar setiap endpoint yang mengubah data
-        // otomatis tercatat di jejak aktivitas -- termasuk endpoint yang dibuat
-        // nanti, tanpa perlu diingat penulisnya.
+        // Setiap endpoint API yang mengubah data otomatis tercatat di jejak
+        // aktivitas tim, termasuk endpoint yang ditambahkan nanti.
         $middleware->appendToGroup('api', CatatAktivitas::class);
 
+        $middleware->validateCsrfTokens(except: []);
+
         /*
-        |------------------------------------------------------------------
-        | Tamu di rute API tidak dialihkan ke mana pun
-        |------------------------------------------------------------------
-        | Bawaan Laravel mengarahkan tamu ke route('login'), yang tidak ada
-        | di aplikasi khusus API ini. Akibatnya Authenticate::unauthenticated()
-        | melempar RouteNotFoundException DI DALAM middleware -- sebelum
-        | renderer AuthenticationException di bawah sempat berjalan -- sehingga
-        | endpoint terlindungi membalas 500 berisi jejak galat alih-alih 401.
-        |
-        | Hal itu hanya muncul saat permintaan TIDAK membawa
-        | Accept: application/json, karena unauthenticated() melewati redirect
-        | bila klien meminta JSON. Aplikasi Flutter selalu mengirim header itu,
-        | jadi gejalanya tidak terlihat dari aplikasi -- tetapi tetap salah,
-        | dan membocorkan path server ke siapa pun yang membuka URL API.
-        |
-        | Dengan mengembalikan null untuk rute api, exception-nya tetap berupa
-        | AuthenticationException dan dijawab 401 dengan envelope yang sama
-        | seperti error lainnya.
-        */
-        $middleware->redirectGuestsTo(
-            fn (Request $request) => $request->is('api/*') ? null : '/',
-        );
+         * Tamu diarahkan ke halaman login yang sesuai dengan tempatnya:
+         * rute tim -> /{slug}/login, rute admin -> /admin/login, API -> 401.
+         */
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('api/*')) {
+                return null;
+            }
+
+            $tim = $request->route('tim');
+
+            if ($tim !== null) {
+                return route('tim.login', is_string($tim) ? strtoupper($tim) : $tim->slug);
+            }
+
+            return route('login');
+        });
+
+        // Pengguna yang sudah login dan membuka halaman tamu dikembalikan ke
+        // dasbornya sendiri: anggota tim ke dasbor tim, superadmin ke /admin.
+        $middleware->redirectUsersTo(function (Request $request) {
+            $user = $request->user();
+
+            if ($user?->team_id !== null && $user->team) {
+                return route('tim.dashboard', $user->team->slug);
+            }
+
+            return route('dashboard');
+        });
+
+        if ($proxies = env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        /*
+         * Envelope error API yang seragam { success, message, code, errors? }
+         * dibawa dari o-api, supaya aplikasi mobile cukup punya satu jalur
+         * parsing. Halaman web tetap memakai halaman galat starter.
+         */
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
-        /*
-        |------------------------------------------------------------------
-        | Envelope error yang seragam
-        |------------------------------------------------------------------
-        | Semua error API memakai bentuk { success, message, code, errors? }
-        | sehingga klien Flutter cukup punya SATU jalur parsing, tidak perlu
-        | membedakan format bawaan Laravel per jenis error.
-        */
-
-        $isApi = fn (Request $request): bool => $request->is('api/*') || $request->expectsJson();
+        $isApi = fn (Request $request): bool => $request->is('api/*');
 
         $exceptions->render(function (ValidationException $e, Request $request) use ($isApi) {
             if (! $isApi($request)) {
@@ -112,11 +132,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            return ApiResponse::error(
-                'Sesi Anda sudah berakhir. Silakan login kembali.',
-                401,
-                code: 'UNAUTHENTICATED',
-            );
+            return ApiResponse::error('Sesi Anda sudah berakhir. Silakan login kembali.', 401, code: 'UNAUTHENTICATED');
         });
 
         $exceptions->render(function (AuthorizationException $e, Request $request) use ($isApi) {
@@ -124,11 +140,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            return ApiResponse::error(
-                'Anda tidak punya hak akses untuk tindakan ini.',
-                403,
-                code: 'FORBIDDEN',
-            );
+            return ApiResponse::error('Anda tidak punya hak akses untuk tindakan ini.', 403, code: 'FORBIDDEN');
         });
 
         $exceptions->render(function (ModelNotFoundException $e, Request $request) use ($isApi) {
@@ -144,9 +156,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            // Route-model binding yang gagal dibungkus jadi NotFoundHttpException.
-            // Dibedakan supaya aplikasi bisa membalas "data sudah dihapus" alih-alih
-            // "URL salah" -- dua kondisi yang penanganannya berbeda di UI.
             $isModel = $e->getPrevious() instanceof ModelNotFoundException;
 
             return ApiResponse::error(
@@ -156,29 +165,12 @@ return Application::configure(basePath: dirname(__DIR__))
             );
         });
 
-        /*
-        |------------------------------------------------------------------
-        | Unggahan yang lebih besar dari batas PHP
-        |------------------------------------------------------------------
-        | Kalau berkasnya melampaui post_max_size, PHP membuang body-nya
-        | SEBELUM validasi sempat berjalan. Tanpa penanganan ini, jawabannya
-        | jatuh ke halaman galat HTML -- dan aplikasi yang mengharap JSON
-        | gagal membacanya, sehingga indikator unggahnya menggantung tanpa
-        | pesan apa pun. Persis gejala "mengunggah terus, tidak masuk".
-        |
-        | 413 dengan envelope yang sama membuat aplikasi bisa menampilkan
-        | alasannya dan melepas tombolnya kembali.
-        */
         $exceptions->render(function (PostTooLargeException $e, Request $request) use ($isApi) {
             if (! $isApi($request)) {
                 return null;
             }
 
-            return ApiResponse::error(
-                'Berkas terlalu besar. Ukuran maksimal 8 MB.',
-                413,
-                code: 'PAYLOAD_TOO_LARGE',
-            );
+            return ApiResponse::error('Berkas terlalu besar. Ukuran maksimal 8 MB.', 413, code: 'PAYLOAD_TOO_LARGE');
         });
 
         $exceptions->render(function (MethodNotAllowedHttpException $e, Request $request) use ($isApi) {
@@ -196,39 +188,22 @@ return Application::configure(basePath: dirname(__DIR__))
 
             $detik = (int) ($e->getHeaders()['Retry-After'] ?? 0);
 
-            $response = ApiResponse::error(
+            return ApiResponse::error(
                 $detik > 0
                     ? "Terlalu banyak percobaan. Coba lagi dalam {$detik} detik."
                     : 'Terlalu banyak permintaan. Silakan tunggu sebentar.',
                 429,
                 code: 'TOO_MANY_REQUESTS',
-            );
-
-            // Header bawaan pembatas laju (Retry-After, X-RateLimit-*) ikut
-            // dibawa. Tanpa ini aplikasi hanya bisa bilang "coba lagi nanti"
-            // tanpa tahu nanti itu kapan, dan pengguna menekan tombolnya
-            // berulang kali -- justru memperpanjang blokirnya sendiri.
-            $response->withHeaders($e->getHeaders());
-
-            return $response;
+            )->withHeaders($e->getHeaders());
         });
 
-        // Error tak terduga: sembunyikan detail saat APP_DEBUG=false.
         $exceptions->render(function (Throwable $e, Request $request) use ($isApi) {
-            if (! $isApi($request) || $e instanceof HttpExceptionInterface) {
+            if (! $isApi($request) || $e instanceof HttpExceptionInterface || config('app.debug')) {
                 return null;
-            }
-
-            if (config('app.debug')) {
-                return null; // biarkan Laravel menampilkan trace saat debugging
             }
 
             report($e);
 
-            return ApiResponse::error(
-                'Terjadi kesalahan pada server. Silakan coba lagi.',
-                500,
-                code: 'SERVER_ERROR',
-            );
+            return ApiResponse::error('Terjadi kesalahan pada server. Silakan coba lagi.', 500, code: 'SERVER_ERROR');
         });
     })->create();

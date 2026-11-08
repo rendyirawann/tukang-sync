@@ -16,6 +16,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'kode_tim' => ['nullable', 'string', 'max:8'],
             'email' => ['required', 'email', 'max:255'],
             'password' => ['required', 'string'],
             'device_name' => ['nullable', 'string', 'max:100'],

@@ -1,9 +1,7 @@
-{{--
-    Membayangi halaman 404 bawaan framework.
+@extends('errors.layout')
 
-    Berkas per kode WAJIB ada: framework menyediakan halamannya sendiri untuk
-    kode-kode ini, dan pencariannya menemukan berkas itu lebih dulu daripada
-    cadangan 4xx/5xx -- sehingga cadangan tidak akan pernah terpakai kalau
-    hanya mengandalkannya.
---}}
-@include('errors.layout')
+@section('title', 'Halaman Tidak Ditemukan')
+
+@section('code', '404')
+@section('heading', 'Halaman Tidak Ditemukan')
+@section('message', 'Halaman yang Anda cari sudah dipindahkan atau tidak pernah ada.')

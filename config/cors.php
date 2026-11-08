@@ -1,53 +1,63 @@
 <?php
 
-declare(strict_types=1);
+/*
+|--------------------------------------------------------------------------
+| Cross-Origin Resource Sharing (CORS)
+|--------------------------------------------------------------------------
+|
+| CORS is applied ONLY to the paths listed below. Static assets, Blade pages
+| and the admin panel are served same-origin and are deliberately left out,
+| so tightening this can never break the UI, fonts, images or plugin files.
+|
+| Allowed origins default to APP_URL. Add more (a mobile app host, a separate
+| SPA domain) via the CORS_ALLOWED_ORIGINS env var, comma separated.
+|
+*/
+
+// An empty (not just absent) CORS_ALLOWED_ORIGINS falls back to APP_URL,
+// so the list is never accidentally blank after copying .env.example.
+$configured = trim((string) env('CORS_ALLOWED_ORIGINS', ''));
+
+if ($configured === '') {
+    $configured = (string) env('APP_URL', 'http://localhost');
+}
+
+$origins = array_values(array_filter(array_map('trim', explode(',', $configured))));
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cross-Origin Resource Sharing (CORS)
-    |--------------------------------------------------------------------------
-    |
-    | Dibutuhkan saat aplikasi Flutter dijalankan di browser (mode debug web):
-    | halaman berjalan di http://localhost:<port-acak> sedangkan API di
-    | http://127.0.0.1:8000, sehingga setiap permintaan bersifat lintas-origin.
-    |
-    | Aplikasi Android/iOS tidak terpengaruh berkas ini -- aturan CORS hanya
-    | ditegakkan oleh browser.
-    |
-    */
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+        'broadcasting/auth',
+    ],
 
-    'paths' => ['api/*', 'docs', 'docs/*'],
+    'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
-    'allowed_methods' => ['*'],
+    'allowed_origins' => $origins,
 
-    /*
-    | Port Flutter web berubah-ubah setiap kali dijalankan, jadi origin tidak
-    | bisa didaftarkan satu per satu.
-    |
-    | UNTUK PRODUKSI: ganti menjadi daftar domain yang benar-benar dipakai,
-    | mis. ['https://app.perusahaan.co.id'].
-    */
-    'allowed_origins' => ['*'],
+    // e.g. CORS_ALLOWED_ORIGIN_PATTERNS="#^https://.*\.example\.com$#"
+    'allowed_origins_patterns' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('CORS_ALLOWED_ORIGIN_PATTERNS', ''))
+    ))),
 
-    'allowed_origins_patterns' => [],
+    'allowed_headers' => [
+        'Accept',
+        'Authorization',
+        'Content-Type',
+        'X-Requested-With',
+        'X-CSRF-TOKEN',
+        'X-XSRF-TOKEN',
+        'X-Socket-Id',
+    ],
 
-    'allowed_headers' => ['*'],
+    'exposed_headers' => [],
 
-    /*
-    | Tanpa ini browser menyembunyikan Content-Disposition, sehingga aplikasi
-    | tidak bisa membaca nama berkas PDF dari server dan terpaksa memakai nama
-    | buatan sendiri.
-    */
-    'exposed_headers' => ['Content-Disposition'],
+    'max_age' => 600,
 
-    'max_age' => 0,
-
-    /*
-    | Autentikasi memakai Bearer token, bukan cookie sesi, jadi kredensial
-    | lintas-origin tidak perlu diizinkan.
-    */
-    'supports_credentials' => false,
+    // Required for cookie-authenticated XHR; safe because the origin list is
+    // explicit (a wildcard origin with credentials would be rejected anyway).
+    'supports_credentials' => true,
 
 ];

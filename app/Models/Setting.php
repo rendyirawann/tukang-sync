@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -9,45 +7,48 @@ use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
-    protected $fillable = ['key', 'value', 'type', 'label', 'group', 'description'];
+    protected $fillable = ['key', 'value'];
 
-    protected static function booted(): void
+    /**
+     * Get a setting value by key.
+     */
+    public static function get(string $key, $default = null)
     {
-        $bust = fn () => Cache::forget(self::CACHE_KEY);
-        static::saved($bust);
-        static::deleted($bust);
-    }
-
-    public const CACHE_KEY = 'settings.all';
-
-    /** @return array<string, mixed> */
-    public static function all2(): array
-    {
-        return Cache::rememberForever(self::CACHE_KEY, function (): array {
-            return self::query()->get()->mapWithKeys(fn (self $s) => [
-                $s->key => $s->castValue(),
-            ])->all();
+        return Cache::remember("setting.{$key}", 3600, function () use ($key, $default) {
+            $setting = static::where('key', $key)->first();
+            return $setting ? $setting->value : $default;
         });
     }
 
-    public static function get(string $key, mixed $default = null): mixed
+    /**
+     * Set a setting value by key.
+     */
+    public static function set(string $key, $value): void
     {
-        return self::all2()[$key] ?? $default;
+        static::updateOrCreate(['key' => $key], ['value' => $value]);
+        Cache::forget("setting.{$key}");
+        Cache::forget('settings.all');
     }
 
-    public static function put(string $key, mixed $value): void
+    /**
+     * Get all settings as key-value array (cached).
+     */
+    public static function allCached(): array
     {
-        self::query()->where('key', $key)->update(['value' => (string) $value]);
-        Cache::forget(self::CACHE_KEY);
+        return Cache::remember('settings.all', 3600, function () {
+            return static::pluck('value', 'key')->toArray();
+        });
     }
 
-    public function castValue(): mixed
+    /**
+     * Clear all settings cache.
+     */
+    public static function clearCache(): void
     {
-        return match ($this->type) {
-            'percent', 'money' => (float) $this->value,
-            'int' => (int) $this->value,
-            'bool' => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
-            default => $this->value,
-        };
+        $settings = static::pluck('key');
+        foreach ($settings as $key) {
+            Cache::forget("setting.{$key}");
+        }
+        Cache::forget('settings.all');
     }
 }

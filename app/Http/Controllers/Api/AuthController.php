@@ -11,7 +11,9 @@ use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\ProfilRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Team;
 use App\Models\User;
+use App\Support\Tenancy\PenjagaTim;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,14 +32,15 @@ class AuthController extends Controller
     #[OA\Post(
         path: '/api/auth/login',
         operationId: 'authLogin',
-        description: 'Menukar email + password dengan access token. Token dipakai di header Authorization: Bearer <token>.',
-        summary: 'Login dengan email & password',
+        description: 'Menukar kode tim + email + password dengan access token. Token dipakai di header Authorization: Bearer <token>. Hanya akun anggota tim yang aktif; tim yang belum dikonfirmasi pembayarannya atau ditangguhkan ditolak 403.',
+        summary: 'Login anggota tim',
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
                 required: ['email', 'password'],
                 properties: [
-                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'owner@taksasi.test'),
+                    new OA\Property(property: 'kode_tim', description: 'Kode 4 karakter dari URL tim (domain/KODE/login). Opsional, tetapi bila diisi harus cocok.', type: 'string', example: 'K7QX'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'owner@demo.test'),
                     new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password123'),
                     new OA\Property(property: 'device_name', description: 'Nama perangkat, tampil di daftar sesi', type: 'string', example: 'Samsung A54'),
                 ],
@@ -83,16 +86,31 @@ class AuthController extends Controller
             )->withHeaders(['Retry-After' => (string) $detik]);
         }
 
-        $user = User::query()->where('email', $request->input('email'))->first();
+        // Hanya anggota tim yang memakai API; akun platform (superadmin)
+        // bekerja lewat panel /admin. Kode tim opsional karena email sudah
+        // unik -- tetapi bila dikirim, harus cocok dengan tim akunnya.
+        $user = User::query()
+            ->where('email', $request->input('email'))
+            ->whereNotNull('team_id')
+            ->with('team')
+            ->first();
 
-        if (! $user || ! $user->checkPassword((string) $request->input('password'))) {
+        $kodeTim = $request->filled('kode_tim') ? Team::normalkanSlug((string) $request->input('kode_tim')) : null;
+
+        if (! $user
+            || ! $user->checkPassword((string) $request->input('password'))
+            || ($kodeTim !== null && $user->team?->slug !== $kodeTim)) {
             RateLimiter::hit($key, self::DECAY_SECONDS);
 
-            return ApiResponse::error('Email atau password salah.', 401, code: 'INVALID_CREDENTIALS');
+            return ApiResponse::error('Kode tim, email, atau password salah.', 401, code: 'INVALID_CREDENTIALS');
         }
 
-        if (! $user->is_active) {
-            return ApiResponse::error('Akun Anda dinonaktifkan. Hubungi administrator.', 403, code: 'ACCOUNT_DISABLED');
+        if (! $user->is_active || $user->banned_at !== null) {
+            return ApiResponse::error('Akun Anda dinonaktifkan. Hubungi pemilik tim.', 403, code: 'ACCOUNT_DISABLED');
+        }
+
+        if ($tolak = PenjagaTim::alasanTolak($user->team)) {
+            return $tolak;
         }
 
         RateLimiter::clear($key);
@@ -189,7 +207,11 @@ class AuthController extends Controller
             )->withHeaders(['Retry-After' => (string) $detik]);
         }
 
-        $user = User::query()->where('email', $request->input('email'))->first();
+        $user = User::query()
+            ->where('email', $request->input('email'))
+            ->whereNotNull('team_id')
+            ->with('team')
+            ->first();
 
         if (! $user || ! $user->biometricTokenIsValid((string) $request->input('biometric_token'))) {
             RateLimiter::hit($key, self::DECAY_SECONDS);
@@ -201,8 +223,12 @@ class AuthController extends Controller
             );
         }
 
-        if (! $user->is_active) {
-            return ApiResponse::error('Akun Anda dinonaktifkan. Hubungi administrator.', 403, code: 'ACCOUNT_DISABLED');
+        if (! $user->is_active || $user->banned_at !== null) {
+            return ApiResponse::error('Akun Anda dinonaktifkan. Hubungi pemilik tim.', 403, code: 'ACCOUNT_DISABLED');
+        }
+
+        if ($tolak = PenjagaTim::alasanTolak($user->team)) {
+            return $tolak;
         }
 
         RateLimiter::clear($key);
@@ -384,7 +410,7 @@ class AuthController extends Controller
 
         $token = $user->createToken($deviceName !== '' ? $deviceName : 'mobile', ['*'], $expiresAt);
 
-        $user->forceFill(['last_login_at' => now()])->save();
+        $user->forceFill(['last_login' => now(), 'last_ip' => request()->ip()])->save();
 
         return [
             'access_token' => $token->plainTextToken,

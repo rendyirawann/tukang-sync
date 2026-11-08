@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Database\Factories\LampiranFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\MilikTim;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Storage;
 class Lampiran extends Model
 {
     /** @use HasFactory<LampiranFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, MilikTim, SoftDeletes;
 
     protected $table = 'lampiran';
 

@@ -8,6 +8,7 @@ use App\Enums\JenisMaster;
 use App\Support\MasterDataOtomatis;
 use Database\Factories\BahanBakuItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\MilikTim;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BahanBakuItem extends Model
 {
     /** @use HasFactory<BahanBakuItemFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, MilikTim, SoftDeletes;
 
     protected $table = 'bahan_baku_items';
 
