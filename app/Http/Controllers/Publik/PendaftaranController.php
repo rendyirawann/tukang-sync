@@ -37,8 +37,9 @@ class PendaftaranController extends Controller
 
     public function store(Request $request, PenyediaTim $penyedia): RedirectResponse
     {
-        // Honeypot: manusia tidak pernah mengisi kolom tersembunyi ini.
-        if (filled($request->input('situs_web'))) {
+        // Honeypot + time-trap (+ Turnstile bila aktif): bot dialihkan
+        // diam-diam ke beranda tanpa membuat tim.
+        if (! \App\Support\AntiSpam::lolos($request)) {
             return redirect()->route('beranda');
         }
 

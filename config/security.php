@@ -72,4 +72,37 @@ return [
         'api' => (int) env('RATE_LIMIT_API', 60),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Anti-spam formulir publik
+    |--------------------------------------------------------------------------
+    |
+    | Honeypot selalu aktif. Time-trap menolak formulir yang dikirim kurang
+    | dari min_seconds setelah dimuat (manusia butuh waktu mengetik).
+    |
+    */
+
+    'antispam' => [
+        'time_trap' => env('SECURITY_TIME_TRAP', true),
+        'min_seconds' => (int) env('SECURITY_TIME_TRAP_SECONDS', 3),
+        // Hanya untuk tes otomatis: tes time-trap menyalakan ini sendiri.
+        'time_trap_saat_test' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cloudflare Turnstile (opsional)
+    |--------------------------------------------------------------------------
+    |
+    | Mati secara bawaan. Baru aktif bila enabled=true DAN kedua key terisi,
+    | sehingga formulir tidak pernah rusak hanya karena key belum diatur.
+    |
+    */
+
+    'turnstile' => [
+        'enabled' => env('TURNSTILE_ENABLED', false),
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

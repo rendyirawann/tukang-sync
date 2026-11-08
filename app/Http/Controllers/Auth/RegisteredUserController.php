@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Models\User;
+use App\Support\AntiSpam;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,6 +38,11 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $this->guardRegistrationEnabled();
+
+        // Bot ditolak diam-diam: tampak seperti berhasil, tidak membuat akun.
+        if (! AntiSpam::lolos($request)) {
+            return redirect()->route('login');
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],

@@ -16,6 +16,7 @@
                 @endif
                 <form method="POST" action="{{ route('tim.login.store', $tim->slug) }}">
                     @csrf
+                    <x-honeypot />
                     <div class="mb-5"><label class="form-label">Email</label>
                         <input type="email" name="email" value="{{ old('email') }}" class="form-control form-control-lg" required autofocus autocomplete="username"></div>
                     <div class="mb-5"><label class="form-label">Password</label>

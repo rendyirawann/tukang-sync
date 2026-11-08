@@ -91,6 +91,9 @@ class AccountController extends Controller
 
         $user = User::findOrFail($id);
 
+        // IDOR: hanya pemilik akun (atau Superadmin) yang boleh mengganti foto.
+        abort_unless((string) $user->id === (string) auth()->id() || auth()->user()?->hasRole('Superadmin'), 403);
+
         // ===============================
         // FULL OLD SNAPSHOT
         // ===============================
@@ -107,7 +110,8 @@ class AccountController extends Controller
             }
 
             $file = $request->file('avatar');
-            $extension = $file->getClientOriginalExtension();
+            // Ekstensi dari isi berkas, bukan dari nama kiriman klien.
+            $extension = $file->guessExtension() === 'png' ? 'png' : 'jpg';
 
             // Nama file aman & standar
             $filename = 'avatar-'.$user->id.'-'.time().'.'.$extension;

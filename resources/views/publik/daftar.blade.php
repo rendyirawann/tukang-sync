@@ -12,9 +12,7 @@
 
     <form method="POST" action="{{ route('daftar.store') }}">
         @csrf
-        <div style="position:absolute;left:-9999px" aria-hidden="true">
-            <label>Situs web <input type="text" name="situs_web" tabindex="-1" autocomplete="off"></label>
-        </div>
+        <x-honeypot />
         <div class="row g-8">
             <div class="col-lg-7">
                 <div class="card shadow-sm mb-6"><div class="card-body p-8">

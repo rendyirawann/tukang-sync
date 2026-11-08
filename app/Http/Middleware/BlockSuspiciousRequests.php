@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use App\Support\SecurityLog;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -60,13 +60,10 @@ class BlockSuspiciousRequests
                 continue;
             }
 
-            Log::channel(config('logging.default'))->warning('Blocked suspicious request', [
-                'ip' => $request->ip(),
-                'method' => $request->method(),
-                'uri' => $request->getRequestUri(),
-                'user_agent' => substr((string) $request->userAgent(), 0, 255),
+            SecurityLog::catat('request.suspicious_blocked', $request, [
+                'uri' => mb_substr($request->getRequestUri(), 0, 500),
                 'signature' => $pattern,
-            ]);
+            ], 'warning');
 
             abort(400, 'Permintaan tidak valid.');
         }

@@ -34,7 +34,7 @@ class PendaftaranTest extends TestCase
 
         $res = $this->post('/daftar', [
             'nama_tim' => 'CV Uji', 'nama' => 'Andi', 'email' => 'andi@uji.test', 'no_wa' => '081234567890',
-            'password' => 'rahasia123', 'password_confirmation' => 'rahasia123', 'peran' => 'kontraktor', 'plan_id' => $plan->id,
+            'password' => 'Rahasia123', 'password_confirmation' => 'Rahasia123', 'peran' => 'kontraktor', 'plan_id' => $plan->id,
         ]);
 
         $tim = Team::where('nama', 'CV Uji')->firstOrFail();
@@ -57,11 +57,11 @@ class PendaftaranTest extends TestCase
         $plan = Plan::first();
         $this->post('/daftar', [
             'nama_tim' => 'CV Tunggu', 'nama' => 'B', 'email' => 'b@uji.test', 'no_wa' => '081234567890',
-            'password' => 'rahasia123', 'password_confirmation' => 'rahasia123', 'peran' => 'owner', 'plan_id' => $plan->id,
+            'password' => 'Rahasia123', 'password_confirmation' => 'Rahasia123', 'peran' => 'owner', 'plan_id' => $plan->id,
         ]);
         $tim = Team::firstOrFail();
 
-        $this->post("/{$tim->slug}/login", ['email' => 'b@uji.test', 'password' => 'rahasia123'])
+        $this->post("/{$tim->slug}/login", ['email' => 'b@uji.test', 'password' => 'Rahasia123'])
             ->assertRedirect(route('tim.status', $tim->slug));
         $this->assertGuest();
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Support\AntiSpam;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +41,12 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(?int $teamId = null): void
     {
+        // 0. Bot (honeypot / time-trap / Turnstile): ditolak dengan pesan yang
+        //    sama seperti sandi salah, supaya tidak memberi petunjuk.
+        if (! AntiSpam::lolos($this)) {
+            throw ValidationException::withMessages(['email' => 'Akun atau Password salah.']);
+        }
+
         // 1. Tentukan Key untuk Rate Limiter & Counter Gagal
         $throttleKey = $this->throttleKey();
         $failCounterKey = $throttleKey . ':fails'; // Key khusus untuk simpan jumlah gagal hari ini

@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # Tolak berkas tersembunyi (.env, .git, .htaccess, dsb.) kecuali
+    # .well-known yang dipakai Let's Encrypt.
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -22,4 +26,18 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# Tanpa daftar isi folder walau mod_negotiation tidak ada.
+Options -Indexes
+
+# Jangan pernah melayani berkas sensitif bila tersalin ke public/ secara tidak sengaja.
+<FilesMatch "(?i)\.(env|log|sql|bak|sh|ini|lock|md|yml|yaml)$|^composer\.(json|lock)$">
+    Require all denied
+</FilesMatch>
+
+# Hapus sidik jari PHP (lengkapi dengan expose_php=Off di php.ini).
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+    Header unset X-Powered-By
 </IfModule>

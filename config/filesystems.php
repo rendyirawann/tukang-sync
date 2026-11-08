@@ -38,6 +38,15 @@ return [
             'report' => false,
         ],
 
+        // Foto struk/bukti per proyek (dibawa dari o-api). Privat: hanya
+        // disajikan lewat endpoint API yang memeriksa tim & izin.
+        'lampiran' => [
+            'driver' => 'local',
+            'root' => storage_path('app/lampiran'),
+            'serve' => false,
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

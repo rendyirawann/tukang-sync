@@ -73,6 +73,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Event keamanan (login, logout, reset sandi, perubahan peran, 403,
+        // bot ditolak). Dipisah dari log aplikasi agar mudah diaudit.
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'info',
+            'days' => env('LOG_SECURITY_DAYS', 30),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
