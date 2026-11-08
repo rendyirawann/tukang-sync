@@ -145,6 +145,43 @@ final class Izin
         return $user->isPelaksana() ? self::KATEGORI_PETUGAS : [];
     }
 
+    // ------------------------------------------------------------------
+    // RAB & lapangan
+    // ------------------------------------------------------------------
+
+    /**
+     * Menyusun RAB: struktur bangunan/lantai/ruangan, item pekerjaan,
+     * volume, analisa, dan harga. Menentukan anggaran -> hanya pengelola.
+     */
+    public static function kelolaRab(?User $user): bool
+    {
+        return $user?->isPengelola() ?? false;
+    }
+
+    /** Katalog material/upah dan template analisa (AHSP) tim. */
+    public static function kelolaKatalog(?User $user): bool
+    {
+        return $user?->isPengelola() ?? false;
+    }
+
+    /** Memperbarui persen progres pekerjaan dari lapangan. */
+    public static function isiProgres(?User $user): bool
+    {
+        return $user !== null && ($user->isPengelola() || $user->isPelaksana());
+    }
+
+    /** Menulis log harian lapangan. */
+    public static function isiLogHarian(?User $user): bool
+    {
+        return $user !== null && ($user->isPengelola() || $user->isPelaksana());
+    }
+
+    /** Mengelola langganan tim (perpanjang / ganti paket). */
+    public static function kelolaLangganan(?User $user): bool
+    {
+        return $user?->isPengelola() ?? false;
+    }
+
     /**
      * Ringkasan izin untuk dikirim ke aplikasi.
      *
@@ -153,6 +190,11 @@ final class Izin
     public static function ringkasan(?User $user): array
     {
         return [
+            'kelola_rab' => self::kelolaRab($user),
+            'kelola_katalog' => self::kelolaKatalog($user),
+            'isi_progres' => self::isiProgres($user),
+            'isi_log_harian' => self::isiLogHarian($user),
+            'kelola_langganan' => self::kelolaLangganan($user),
             'kelola_kegiatan' => self::kelolaKegiatan($user),
             'kelola_pengaturan' => self::kelolaPengaturan($user),
             'kelola_pengguna' => self::kelolaPengguna($user),
