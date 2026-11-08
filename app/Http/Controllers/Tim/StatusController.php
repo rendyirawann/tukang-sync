@@ -37,7 +37,7 @@ class StatusController extends Controller
         return "Halo admin, saya ingin {$judul} Tukangsync.\n"
             ."Kode tim: {$tim->slug}\n"
             ."Invoice: {$bayar->kode}\n"
-            .'Paket: '.($bayar->plan?->nama ?? '-')."\n"
+            .'Paket: '.($bayar->plan->nama ?? '-')."\n"
             .'Nominal: '.$bayar->nominalLabel()."\n"
             .'Nama: '.($nama ?? '-')."\n"
             ."Tim: {$tim->nama}\n"

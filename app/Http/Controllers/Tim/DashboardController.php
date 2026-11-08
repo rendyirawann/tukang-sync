@@ -22,12 +22,12 @@ class DashboardController extends TimController
             ->groupBy('kegiatan_id')->get()->keyBy('kegiatan_id');
 
         $totalRab = (int) $rab->sum('total');
-        $progres = $totalRab > 0 ? round($rab->sum('bobot') / $totalRab, 1) : 0;
+        $progres = $totalRab > 0 ? round($rab->sum(fn ($r) => $r->getAttribute('bobot')) / $totalRab, 1) : 0;
 
         $proyek = Kegiatan::query()->latest()->take(6)->get()->each(function (Kegiatan $k) use ($rab) {
             $r = $rab->get($k->id);
             $k->setAttribute('rab_total', (int) ($r->total ?? 0));
-            $k->setAttribute('rab_progres', $r && $r->total > 0 ? round($r->bobot / $r->total, 1) : 0);
+            $k->setAttribute('rab_progres', $r && $r->total > 0 ? round($r->getAttribute('bobot') / $r->total, 1) : 0);
         });
 
         return view('tim.dashboard', [

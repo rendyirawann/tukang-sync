@@ -172,7 +172,7 @@ class UserController extends Controller
     private function kompatibel(Request $request, ?User $akun): void
     {
         $request->merge(array_filter([
-            'peran' => $request->input('peran') ?? $akun?->peran?->value ?? Peran::Anggota->value,
+            'peran' => $request->input('peran') ?? $akun?->peran->value ?? Peran::Anggota->value,
             'name' => $request->input('name') ?? $akun?->name,
             'email' => $request->input('email') ?? $akun?->email,
             'no_wa' => $request->input('no_wa') ?? $request->input('phone') ?? $akun?->no_wa,

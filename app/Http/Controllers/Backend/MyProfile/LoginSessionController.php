@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Backend\MyProfile;
 
 use App\Http\Controllers\Controller;
 use Auth;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
 
 class LoginSessionController extends Controller
@@ -13,7 +15,7 @@ class LoginSessionController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function index(Request $request)
     {

@@ -78,7 +78,7 @@ class KegiatanRequest extends FormRequest
                 $total = 0.0;
 
                 foreach ($keys as $key) {
-                    $total += (float) ($this->input($key) ?? $model?->{$key} ?? 0);
+                    $total += (float) ($this->input($key) ?? $model->{$key} ?? 0);
                 }
 
                 if ($total > 100.0) {

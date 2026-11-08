@@ -9,7 +9,6 @@ use Carbon\Carbon;
 use DB;
 use File;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Spatie\Activitylog\Models\Activity;
@@ -21,8 +20,6 @@ class AccountController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
     public function index(): View
     {

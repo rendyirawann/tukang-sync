@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Support\ActivityRecorder;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 // FIX: Tambahkan ini untuk DataTables
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Routing\Controllers\HasMiddleware;
 // FIX: Tambahkan interface HasMiddleware dan class Middleware untuk Laravel 12
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -60,8 +61,6 @@ class RoleController extends Controller implements HasMiddleware
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
     public function index(Request $request): View
     {
@@ -144,7 +143,7 @@ class RoleController extends Controller implements HasMiddleware
     /**
      * Show the form for creating a new resource.
      *
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function store(Request $request)
     {
@@ -194,7 +193,7 @@ class RoleController extends Controller implements HasMiddleware
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function show(Request $request, $id)
     {
@@ -230,7 +229,7 @@ class RoleController extends Controller implements HasMiddleware
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function edit($id)
     {
@@ -255,7 +254,7 @@ class RoleController extends Controller implements HasMiddleware
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function update(Request $request, $id)
     {
@@ -288,7 +287,7 @@ class RoleController extends Controller implements HasMiddleware
             // --- FIX: PAKSA UPDATE TIMESTAMP ---
             // Set updated_at ke waktu sekarang agar selalu berubah
             // (meskipun nama role tidak diganti)
-            $role->updated_at = Carbon::now();
+            $role->updated_at = now();
 
             // Update permission dan simpan perubahan
             $role->permissions()->sync($request->input('permission'));
@@ -331,7 +330,7 @@ class RoleController extends Controller implements HasMiddleware
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function destroy(Request $request, $id)
     {

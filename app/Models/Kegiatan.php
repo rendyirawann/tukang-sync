@@ -17,7 +17,35 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property StatusKegiatan $status
+ * @property Carbon|null $tanggal_mulai
+ * @property Carbon|null $tanggal_selesai
+ * @property int $pagu
+ * @property int $pelaksanaan_real
+ * @property int $ppn
+ * @property int $pph
+ * @property int $netto
+ * @property int $rencana_pelaksanaan
+ * @property int $biaya_kewajiban
+ * @property int $biaya_administrasi
+ * @property int $biaya_perusahaan
+ * @property int $profit_kotor
+ * @property int $bagi_hasil_investor
+ * @property int $profit_bersih
+ * @property int $hasil_bersih_per_owner
+ * @property int $sisa_pembulatan
+ * @property float $rate_ppn
+ * @property float $rate_pph
+ * @property float $rate_rencana
+ * @property float $rate_kewajiban
+ * @property float $rate_administrasi
+ * @property float $rate_perusahaan
+ * @property float $rate_investor
+ * @property int $jml_owner
+ */
 class Kegiatan extends Model
 {
     /** @use HasFactory<KegiatanFactory> */
@@ -81,44 +109,61 @@ class Kegiatan extends Model
         return $id === null ? null : (int) $id;
     }
 
+    /** @return HasMany<Bangunan, $this> */
     public function bangunan(): HasMany
     {
         return $this->hasMany(Bangunan::class)->orderBy('urutan')->orderBy('id');
     }
 
-    /** Item RAB proyek ini. */
+    /**
+     * Item RAB proyek ini.
+     *
+     * @return HasMany<Pekerjaan, $this>
+     */
     public function pekerjaan(): HasMany
     {
         return $this->hasMany(Pekerjaan::class);
     }
 
+    /** @return HasMany<LogHarian, $this> */
     public function logHarian(): HasMany
     {
         return $this->hasMany(LogHarian::class)->orderByDesc('tanggal');
     }
 
+    /** @return HasMany<CashFlow, $this> */
     public function cashFlows(): HasMany
     {
         return $this->hasMany(CashFlow::class);
     }
 
-    /** Rincian bahan baku per item -- sumber angka "Bahan Baku". */
+    /**
+     * Rincian bahan baku per item -- sumber angka "Bahan Baku".
+     *
+     * @return HasMany<BahanBakuItem, $this>
+     */
     public function bahanBakuItems(): HasMany
     {
         return $this->hasMany(BahanBakuItem::class)->orderBy('urutan')->orderBy('id');
     }
 
-    /** Lampiran bukti (foto struk belanja, dokumen pendukung). */
+    /**
+     * Lampiran bukti (foto struk belanja, dokumen pendukung).
+     *
+     * @return HasMany<Lampiran, $this>
+     */
     public function lampiran(): HasMany
     {
         return $this->hasMany(Lampiran::class)->latest('id');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');

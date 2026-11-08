@@ -30,6 +30,15 @@ use Spatie\Permission\Traits\HasRoles;
  * Model ini sengaja TIDAK memakai global scope MilikTim: provider auth dan
  * Sanctum harus bisa menemukan akun sebelum tim aktif diketahui. Query
  * anggota tim selalu disaring eksplisit lewat scope anggotaTim().
+ *
+ * @property Peran|null $peran
+ * @property Carbon|null $email_verified_at
+ * @property Carbon|null $last_login
+ * @property string $password
+ * @property bool $is_active
+ * @property Carbon|null $biometric_enrolled_at
+ * @property Carbon|null $biometric_expires_at
+ * @property Carbon|null $password_changed_at
  */
 class User extends Authenticatable implements BannableContract
 {
@@ -105,11 +114,13 @@ class User extends Authenticatable implements BannableContract
     // Relasi & scope
     // ------------------------------------------------------------------
 
+    /** @return BelongsTo<Team, $this> */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
+    /** @return HasMany<Kegiatan, $this> */
     public function kegiatan(): HasMany
     {
         return $this->hasMany(Kegiatan::class, 'created_by');

@@ -12,12 +12,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Satu baris rincian bahan baku.
  *
  * Subtotal dihitung dan disimpan otomatis, tidak pernah dikirim klien, agar
  * qty x harga selalu konsisten dengan yang tersimpan.
+ *
+ * @property float $qty
+ * @property int $harga_satuan
+ * @property int $subtotal
+ * @property Carbon|null $tanggal_beli
+ * @property int $urutan
  */
 class BahanBakuItem extends Model
 {
@@ -73,11 +80,13 @@ class BahanBakuItem extends Model
         static::restored($sync);
     }
 
+    /** @return BelongsTo<Kegiatan, $this> */
     public function kegiatan(): BelongsTo
     {
         return $this->belongsTo(Kegiatan::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

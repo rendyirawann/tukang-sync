@@ -45,11 +45,13 @@ class Lampiran extends Model
         });
     }
 
+    /** @return BelongsTo<Kegiatan, $this> */
     public function kegiatan(): BelongsTo
     {
         return $this->belongsTo(Kegiatan::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');

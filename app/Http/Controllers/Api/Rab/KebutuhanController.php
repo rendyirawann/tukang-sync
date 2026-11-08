@@ -58,14 +58,14 @@ class KebutuhanController extends RabBaseController
         ]);
 
         $material = ! empty($data['material_id']) ? Material::find($data['material_id']) : null;
-        $pakaiQty = isset($data['qty']) && $data['qty'] !== null && ($data['koefisien'] ?? null) === null;
+        $pakaiQty = isset($data['qty']) && ($data['koefisien'] ?? null) === null;
 
         $pekerjaan->kebutuhan()->create([
             'material_id' => $material?->id,
             'nama' => $data['nama'] ?? $material?->nama,
-            'kategori' => $data['kategori'] ?? $material?->kategori ?? 'material',
+            'kategori' => $data['kategori'] ?? $material->kategori ?? 'material',
             'satuan' => $data['satuan'] ?? $material?->satuan,
-            'harga_satuan' => $data['harga_satuan'] ?? $material?->harga ?? 0,
+            'harga_satuan' => $data['harga_satuan'] ?? $material->harga ?? 0,
             'koefisien' => $pakaiQty ? null : $data['koefisien'],
             'qty' => $pakaiQty ? $data['qty'] : 0,
             'qty_manual' => $pakaiQty,

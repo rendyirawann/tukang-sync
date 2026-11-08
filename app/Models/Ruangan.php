@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property float $panjang
+ * @property float $lebar
+ * @property float $tinggi
+ */
 class Ruangan extends Model
 {
     use MilikTim, SoftDeletes;
@@ -23,11 +28,13 @@ class Ruangan extends Model
         return ['panjang' => 'float', 'lebar' => 'float', 'tinggi' => 'float'];
     }
 
+    /** @return BelongsTo<Lantai, $this> */
     public function lantai(): BelongsTo
     {
         return $this->belongsTo(Lantai::class);
     }
 
+    /** @return HasMany<Pekerjaan, $this> */
     public function pekerjaan(): HasMany
     {
         return $this->hasMany(Pekerjaan::class);

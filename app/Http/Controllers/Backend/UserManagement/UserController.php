@@ -9,16 +9,17 @@ use Carbon\Carbon;
 // use App\Models\Skpd;
 use DB;
 use Hash;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 // FIX: Gunakan Facade DataTables yang benar agar tidak error
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+// FIX: Tambahkan interface HasMiddleware dan class Middleware untuk Laravel 12
 use Illuminate\View\View;
 use Jenssegers\Agent\Agent;
-// FIX: Tambahkan interface HasMiddleware dan class Middleware untuk Laravel 12
 use Ramsey\Uuid\Uuid;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
@@ -45,8 +46,6 @@ class UserController extends Controller implements HasMiddleware
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
      */
     public function index(): View
     {
@@ -237,7 +236,7 @@ class UserController extends Controller implements HasMiddleware
     /**
      * Show the form for creating a new resource.
      *
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function store(Request $request)
     {
@@ -347,14 +346,14 @@ class UserController extends Controller implements HasMiddleware
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
 
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function show(Request $request, $id)
     {
@@ -560,7 +559,7 @@ class UserController extends Controller implements HasMiddleware
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function edit($id)
     {
@@ -582,7 +581,7 @@ class UserController extends Controller implements HasMiddleware
      * Update the specified resource in storage.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function update(Request $request, $id)
     {
@@ -695,7 +694,7 @@ class UserController extends Controller implements HasMiddleware
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse|View|RedirectResponse
      */
     public function destroy(Request $request, $id)
     {

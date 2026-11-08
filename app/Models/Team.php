@@ -14,6 +14,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
+/**
+ * @property StatusTim $status
+ * @property bool $lifetime
+ * @property Carbon|null $aktif_sampai
+ * @property Carbon|null $diaktifkan_pada
+ * @property int $max_users
+ */
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -58,16 +65,19 @@ class Team extends Model
     // Relasi
     // ------------------------------------------------------------------
 
+    /** @return BelongsTo<Plan, $this> */
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);
     }
 
+    /** @return HasMany<User, $this> */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
+    /** @return HasMany<TeamPayment, $this> */
     public function payments(): HasMany
     {
         return $this->hasMany(TeamPayment::class)->latest();

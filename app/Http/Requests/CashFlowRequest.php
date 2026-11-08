@@ -52,9 +52,9 @@ class CashFlowRequest extends FormRequest
     {
         $lama = $this->route('cashFlow');
 
-        $nominal = (int) round((float) ($this->input('nominal') ?? $lama?->nominal ?? 0));
+        $nominal = (int) round((float) ($this->input('nominal') ?? $lama->nominal ?? 0));
         $status = $this->input('status_bayar');
-        $metode = MetodeBayar::tryFrom((string) $this->input('metode', $lama?->metode?->value ?? 'kas'));
+        $metode = MetodeBayar::tryFrom((string) $this->input('metode', $lama?->metode->value ?? 'kas'));
 
         if ($status === 'lunas') {
             return $nominal;
@@ -112,7 +112,7 @@ class CashFlowRequest extends FormRequest
             // Yang dibayar tidak boleh melebihi nilainya sendiri.
             function (Validator $validator): void {
                 $lama = $this->route('cashFlow');
-                $nominal = (int) round((float) ($this->input('nominal') ?? $lama?->nominal ?? 0));
+                $nominal = (int) round((float) ($this->input('nominal') ?? $lama->nominal ?? 0));
                 $dibayar = (int) round((float) $this->input('dibayar', 0));
 
                 if ($nominal > 0 && $dibayar > $nominal) {

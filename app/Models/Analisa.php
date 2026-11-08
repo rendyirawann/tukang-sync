@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Contoh "Pasang 1 m² dinding bata merah": 70 bh bata, 0,22 zak semen,
  * 0,043 m³ pasir, 0,3 OH tukang, ...
+ *
+ * @property KategoriPekerjaan $kategori
  */
 class Analisa extends Model
 {
@@ -29,6 +31,7 @@ class Analisa extends Model
         return ['kategori' => KategoriPekerjaan::class];
     }
 
+    /** @return HasMany<AnalisaItem, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(AnalisaItem::class)->orderBy('urutan')->orderBy('id');
@@ -39,6 +42,6 @@ class Analisa extends Model
     {
         $this->loadMissing('items.material');
 
-        return (float) $this->items->sum(fn (AnalisaItem $i) => $i->koefisien * (float) ($i->material?->harga ?? 0));
+        return (float) $this->items->sum(fn (AnalisaItem $i) => $i->koefisien * (float) ($i->material->harga ?? 0));
     }
 }

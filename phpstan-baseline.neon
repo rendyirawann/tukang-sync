@@ -1,0 +1,49 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property Spatie\\Permission\\Models\\Permission\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Console/Commands/GeneratePermissions.php
+
+		-
+			message: '#^Argument of an invalid type Illuminate\\Routing\\RouteCollectionInterface supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Console/Commands/GeneratePermissions.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/ConfirmablePasswordController.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/EmailVerificationPromptController.php
+
+		-
+			message: '#^Parameter \#1 \$user of class Illuminate\\Auth\\Events\\Verified constructor expects Illuminate\\Contracts\\Auth\\MustVerifyEmail, App\\Models\\User\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/Auth/VerifyEmailController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\ConnectionInterface\:\:getDriverName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Backend/Help/LogActivityController.php
+
+		-
+			message: '#^Call to an undefined method Yajra\\DataTables\\DataTableAbstract\:\:filterColumn\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/Backend/Help/LogActivityController.php
+
+		-
+			message: '#^Constant L5_SWAGGER_CONST_HOST not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: app/OpenApi/Info.php

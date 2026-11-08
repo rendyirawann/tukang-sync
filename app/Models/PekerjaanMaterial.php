@@ -7,7 +7,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Kebutuhan satu material/upah untuk satu pekerjaan RAB. */
+/**
+ * Kebutuhan satu material/upah untuk satu pekerjaan RAB.
+ *
+ * @property float $koefisien
+ * @property float $qty
+ * @property bool $qty_manual
+ * @property float $harga_satuan
+ * @property int $subtotal
+ */
 class PekerjaanMaterial extends Model
 {
     protected $table = 'pekerjaan_material';
@@ -28,11 +36,13 @@ class PekerjaanMaterial extends Model
         ];
     }
 
+    /** @return BelongsTo<Pekerjaan, $this> */
     public function pekerjaan(): BelongsTo
     {
         return $this->belongsTo(Pekerjaan::class);
     }
 
+    /** @return BelongsTo<Material, $this> */
     public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class)->withTrashed();

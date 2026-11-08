@@ -19,6 +19,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Dinonaktifkan alih-alih dihapus bila sudah dipakai data lama: kolom `toko`
  * dan `satuan` pada bahan baku menyimpan teksnya, bukan id-nya, sehingga data
  * lama tetap utuh -- tetapi pilihannya tidak perlu lagi muncul saat input baru.
+ *
+ * @property JenisMaster $jenis
+ * @property int $urutan
+ * @property bool $aktif
  */
 class MasterData extends Model
 {
@@ -38,6 +42,7 @@ class MasterData extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

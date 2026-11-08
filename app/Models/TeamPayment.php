@@ -7,9 +7,17 @@ namespace App\Models;
 use App\Enums\StatusPembayaran;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+/**
+ * @property StatusPembayaran $status
+ * @property int $nominal
+ * @property Carbon|null $periode_mulai
+ * @property Carbon|null $periode_selesai
+ * @property Carbon|null $dikonfirmasi_pada
+ */
 class TeamPayment extends Model
 {
     protected $fillable = [
@@ -45,21 +53,25 @@ class TeamPayment extends Model
         return $kode;
     }
 
+    /** @return BelongsTo<Team, $this> */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class)->withTrashed();
     }
 
+    /** @return BelongsTo<Plan, $this> */
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);
     }
 
+    /** @return BelongsTo<BankAccount, $this> */
     public function bankAccount(): BelongsTo
     {
         return $this->belongsTo(BankAccount::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function konfirmator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'dikonfirmasi_oleh');

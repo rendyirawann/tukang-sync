@@ -30,8 +30,8 @@ class AnalisaResource extends JsonResource
                 'kategori' => $i->material?->kategori,
                 'satuan' => $i->material?->satuan,
                 'koefisien' => (float) $i->koefisien,
-                'harga' => (float) ($i->material?->harga ?? 0),
-                'subtotal' => round($i->koefisien * (float) ($i->material?->harga ?? 0), 2),
+                'harga' => (float) ($i->material->harga ?? 0),
+                'subtotal' => round($i->koefisien * (float) ($i->material->harga ?? 0), 2),
             ])->values()),
         ];
     }

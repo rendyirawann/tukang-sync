@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Satu baris RAB: "Pasang 4 pintu panel 0,9 × 2,1 m di Lantai 1".
@@ -19,6 +20,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Volume dihitung dari jumlah × dimensi menurut satuannya. Biaya berasal
  * dari rincian kebutuhan (pekerjaan_material) bila ada; bila tidak --
  * pekerjaan borongan -- dari volume × harga_satuan.
+ *
+ * @property KategoriPekerjaan $kategori
+ * @property JenisKomponen $komponen
+ * @property float $jumlah
+ * @property float $panjang
+ * @property float $lebar
+ * @property float $tinggi
+ * @property float $volume
+ * @property bool $volume_manual
+ * @property float $harga_satuan
+ * @property int $total
+ * @property int $progres
+ * @property Carbon|null $rencana_mulai
+ * @property Carbon|null $rencana_selesai
  */
 class Pekerjaan extends Model
 {
@@ -52,31 +67,37 @@ class Pekerjaan extends Model
         ];
     }
 
+    /** @return BelongsTo<Kegiatan, $this> */
     public function kegiatan(): BelongsTo
     {
         return $this->belongsTo(Kegiatan::class);
     }
 
+    /** @return BelongsTo<Bangunan, $this> */
     public function bangunan(): BelongsTo
     {
         return $this->belongsTo(Bangunan::class);
     }
 
+    /** @return BelongsTo<Lantai, $this> */
     public function lantai(): BelongsTo
     {
         return $this->belongsTo(Lantai::class);
     }
 
+    /** @return BelongsTo<Ruangan, $this> */
     public function ruangan(): BelongsTo
     {
         return $this->belongsTo(Ruangan::class);
     }
 
+    /** @return BelongsTo<Analisa, $this> */
     public function analisa(): BelongsTo
     {
         return $this->belongsTo(Analisa::class)->withTrashed();
     }
 
+    /** @return HasMany<PekerjaanMaterial, $this> */
     public function kebutuhan(): HasMany
     {
         return $this->hasMany(PekerjaanMaterial::class)->orderBy('kategori')->orderBy('id');

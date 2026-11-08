@@ -9,7 +9,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/** Katalog harga material, upah, dan alat milik satu tim. */
+/**
+ * Katalog harga material, upah, dan alat milik satu tim.
+ *
+ * @property float $harga
+ * @property bool $aktif
+ */
 class Material extends Model
 {
     use MilikTim, SoftDeletes;

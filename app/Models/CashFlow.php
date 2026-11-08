@@ -14,7 +14,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $tanggal
+ * @property JenisKas $jenis
+ * @property KategoriKas $kategori
+ * @property MetodeBayar $metode
+ * @property int $nominal
+ * @property int $dibayar
+ */
 class CashFlow extends Model
 {
     /** @use HasFactory<CashFlowFactory> */
@@ -66,11 +75,13 @@ class CashFlow extends Model
         static::restored($sync);
     }
 
+    /** @return BelongsTo<Kegiatan, $this> */
     public function kegiatan(): BelongsTo
     {
         return $this->belongsTo(Kegiatan::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

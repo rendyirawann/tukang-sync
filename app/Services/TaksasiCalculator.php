@@ -93,7 +93,7 @@ final class TaksasiCalculator
         // belanjanya sudah terjadi padahal belum ada satu pun yang dicatat.
         // Kegiatan baru sekarang benar-benar kosong, dan angkanya terisi
         // sendiri begitu rincian bahan baku atau pembayaran upah diinput.
-        $real = isset($input['pelaksanaan_real']) && $input['pelaksanaan_real'] !== null
+        $real = isset($input['pelaksanaan_real'])
             ? self::rp($input['pelaksanaan_real'])
             : 0;
 

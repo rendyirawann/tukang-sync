@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $harga
+ * @property int $durasi_bulan
+ * @property int $max_users
+ * @property array<int|string, mixed>|null $fitur
+ * @property bool $aktif
+ */
 class Plan extends Model
 {
     protected $fillable = [
@@ -25,6 +32,7 @@ class Plan extends Model
         ];
     }
 
+    /** @return HasMany<Team, $this> */
     public function teams(): HasMany
     {
         return $this->hasMany(Team::class);

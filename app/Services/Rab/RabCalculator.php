@@ -112,7 +112,7 @@ final class RabCalculator
         $nilaiProgres = (int) $pekerjaan->sum(fn (Pekerjaan $p) => $p->nilaiProgres());
 
         $perKategori = $pekerjaan
-            ->groupBy(fn (Pekerjaan $p) => $p->kategori?->value ?? 'lainnya')
+            ->groupBy(fn (Pekerjaan $p) => $p->kategori->value ?? 'lainnya')
             ->map(fn (Collection $g, string $k) => [
                 'kategori' => $k,
                 'label' => KategoriPekerjaan::tryFrom($k)?->label() ?? ucfirst($k),
@@ -124,7 +124,7 @@ final class RabCalculator
             ->values();
 
         $perLokasi = $pekerjaan
-            ->groupBy(fn (Pekerjaan $p) => ($p->bangunan?->nama ?? 'Umum').($p->lantai ? ' › '.$p->lantai->nama : ''))
+            ->groupBy(fn (Pekerjaan $p) => ($p->bangunan->nama ?? 'Umum').($p->lantai ? ' › '.$p->lantai->nama : ''))
             ->map(fn (Collection $g, string $lokasi) => [
                 'lokasi' => $lokasi,
                 'jumlah_item' => $g->count(),
@@ -170,7 +170,8 @@ final class RabCalculator
             ->get()
             ->keyBy('material_id');
 
-        return $rencana->map(function ($r) use ($realisasi) {
+        /** @var Collection<int, array<string, mixed>> $hasil */
+        $hasil = $rencana->map(function ($r) use ($realisasi) {
             $real = $r->material_id ? $realisasi->get($r->material_id) : null;
             $qtyReal = (float) ($real->qty ?? 0);
             $biayaReal = (int) ($real->subtotal ?? 0);
@@ -187,5 +188,7 @@ final class RabCalculator
                 'selisih' => (int) $r->subtotal - $biayaReal,
             ];
         });
+
+        return $hasil;
     }
 }

@@ -200,7 +200,7 @@ class ReportController extends Controller
             'ringkasanKas' => $kegiatan->ringkasanKas(),
             'perusahaan' => $this->perusahaan(),
             'dicetakPada' => Carbon::now(),
-            'dicetakOleh' => $request->user()?->name ?? '-',
+            'dicetakOleh' => $request->user()->name ?? '-',
         ])->setPaper('a4', 'portrait');
 
         // Nama kegiatan dipakai, bukan kodenya: kolom kode sudah tidak ada
@@ -248,7 +248,7 @@ class ReportController extends Controller
             'periode' => ['dari' => $request->query('dari'), 'sampai' => $request->query('sampai')],
             'perusahaan' => $this->perusahaan(),
             'dicetakPada' => Carbon::now(),
-            'dicetakOleh' => $request->user()?->name ?? '-',
+            'dicetakOleh' => $request->user()->name ?? '-',
         ])->setPaper('a4', 'landscape');
 
         $nama = 'Rekap-Transaksi-'.Carbon::now()->format('Ymd-Hi').'.pdf';
@@ -299,7 +299,7 @@ class ReportController extends Controller
             'periode' => ['dari' => $request->query('dari'), 'sampai' => $request->query('sampai')],
             'perusahaan' => $this->perusahaan(),
             'dicetakPada' => Carbon::now(),
-            'dicetakOleh' => $request->user()?->name ?? '-',
+            'dicetakOleh' => $request->user()->name ?? '-',
         ])->setPaper('a4', 'landscape');
 
         $nama = 'Buku-Kas-'.Carbon::now()->format('Ymd-Hi').'.pdf';
