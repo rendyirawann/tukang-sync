@@ -68,7 +68,7 @@ systemd: tukangsync-octane, tukangsync-queue, tukangsync-scheduler
 Tukangsync berdiri sendiri: folder `/var/www/tukang-sync`, port Octane
 **8010**, database `tukangsync`, unit systemd `tukangsync-*`, dan konfigurasi
 nginx khusus `tukang.hustlesync.my.id`. Aplikasi lain (mis. o-api lama di
-`tukang.hustlesync.my.id`) tidak disentuh, selama tidak memakai port 8010.
+`transaksi.dormansyah.com`) tidak disentuh, selama tidak memakai port 8010.
 
 ---
 
@@ -83,8 +83,7 @@ DOMAIN=tukang.hustlesync.my.id EMAIL=email-anda@gmail.com bash setup.sh
 Skrip ini memasang PHP 8.3, nginx, PostgreSQL, Redis, Composer, FrankenPHP,
 certbot; membuat database `tukangsync` + penggunanya; mengklon repo; mengisi
 `shared/.env` (nilai produksi, kredensial database, `APP_KEY`); memasang unit
-systemd; lalu **menerbitkan sertifikat Let's Encrypt baru** untuk domain —
-ini yang memperbaiki sertifikat salah yang terpasang sekarang.
+systemd; lalu **menerbitkan sertifikat Let's Encrypt** untuk domain.
 
 > Tambahkan `WITH_WWW=1` hanya bila `www.tukang.hustlesync.my.id` juga
 > sudah diarahkan ke server.
