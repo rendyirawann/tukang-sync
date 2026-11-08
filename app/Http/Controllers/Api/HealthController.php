@@ -32,7 +32,7 @@ class HealthController extends Controller
                     new OA\Property(property: 'message', type: 'string', example: 'API aktif.'),
                     new OA\Property(property: 'data', properties: [
                         new OA\Property(property: 'status', type: 'string', example: 'ok'),
-                        new OA\Property(property: 'app', type: 'string', example: 'Transaksi Pekerjaan'),
+                        new OA\Property(property: 'app', type: 'string', example: 'Tukangsync'),
                         new OA\Property(property: 'time', type: 'string', format: 'date-time'),
                     ], type: 'object'),
                 ], type: 'object'),

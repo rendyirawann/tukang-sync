@@ -1,10 +1,10 @@
 @extends('pdf.layout')
 
-@section('title', 'Laporan Transaksi Pekerjaan')
+@section('title', 'Laporan Proyek')
 
 @section('content')
 
-    <h1 class="judul">Laporan Transaksi Pekerjaan</h1>
+    <h1 class="judul">Laporan Proyek</h1>
     <p class="sub-judul">{{ $kegiatan->nama }}@if ($kegiatan->kode) &middot; {{ $kegiatan->kode }} @endif</p>
 
     {{-- ---------------- Identitas ---------------- --}}

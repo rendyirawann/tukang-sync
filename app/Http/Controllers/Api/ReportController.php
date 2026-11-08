@@ -140,7 +140,7 @@ class ReportController extends Controller
     #[OA\Get(
         path: '/api/laporan/rekap-kegiatan',
         operationId: 'laporanRekapKegiatan',
-        description: 'Tabel rekap semua kegiatan dengan kolom seperti di Excel "Transaksi Pekerjaan", plus baris TOTAL. Dipakai layar Laporan di mobile.',
+        description: 'Tabel rekap semua kegiatan dengan kolom seperti di Excel "Taksasi Pekerjaan", plus baris TOTAL. Dipakai layar Laporan di mobile.',
         summary: 'Rekap tabel kegiatan',
         security: [['bearerAuth' => []]],
         tags: ['Laporan'],

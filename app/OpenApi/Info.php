@@ -9,7 +9,7 @@ use OpenApi\Attributes as OA;
 #[OA\Info(
     version: '2.0.0',
     description: <<<'DESC'
-    API untuk aplikasi **Transaksi Pekerjaan** (SaaS) — catatan proyek konstruksi:
+    API untuk aplikasi **Tukangsync** (SaaS) — catatan proyek konstruksi:
     RAB per bangunan/lantai/ruangan, kebutuhan material, progres, arus kas,
     dan perhitungan bagi hasil.
 
@@ -36,7 +36,7 @@ use OpenApi\Attributes as OA;
     Nilai uang adalah **rupiah bulat** (integer). Persentase dikirim sebagai
     angka desimal biasa, mis. `1.75` untuk 1,75%. ID akun berupa UUID (string).
     DESC,
-    title: 'Transaksi Pekerjaan API',
+    title: 'Tukangsync API',
 )]
 #[OA\Server(url: L5_SWAGGER_CONST_HOST, description: 'Server ini')]
 #[OA\SecurityScheme(

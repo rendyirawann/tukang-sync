@@ -42,7 +42,7 @@
         <div class="brand">
             <div class="d-flex align-items-center gap-2 mb-2">
                 <img src="{{ $brand['logo_url'] }}" alt="" width="30" height="30">
-                <span class="fw-bold text-white fs-5">Transaksi Pekerjaan</span>
+                <span class="fw-bold text-white fs-5">Tukangsync</span>
             </div>
             <div class="text-white fw-semibold text-truncate">{{ $tim->nama }}</div>
             <span class="kode-badge fs-8">{{ $tim->slug }}</span>

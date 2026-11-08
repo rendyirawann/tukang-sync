@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0D1830"/><stop offset="1" stop-color="#2B5288"/></linearGradient><linearGradient id="au" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C878"/><stop offset="1" stop-color="#C9A44C"/></linearGradient></defs>
+<path d="M18.99 38.71 A33 33 0 0 1 78.58 33.50" fill="none" stroke="url(#au)" stroke-width="6.5" stroke-linecap="round"/>
+<polygon points="85.07,29.75 80.81,38.17 72.08,37.25" fill="url(#au)" stroke="url(#au)" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M81.01 61.29 A33 33 0 0 1 21.42 66.50" fill="none" stroke="url(#au)" stroke-width="6.5" stroke-linecap="round"/>
+<polygon points="14.93,70.25 19.19,61.83 27.92,62.75" fill="url(#au)" stroke="url(#au)" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="31.00,56.00 31.10,54.01 31.42,52.05 31.93,50.13 32.64,48.27 33.55,46.50 34.63,44.83 35.88,43.29 37.29,41.88 38.83,40.63 40.50,39.55 42.27,38.64 44.13,37.93 46.05,37.42 48.01,37.10 50.00,37.00 51.99,37.10 53.95,37.42 55.87,37.93 57.73,38.64 59.50,39.55 61.17,40.63 62.71,41.88 64.12,43.29 65.37,44.83 66.45,46.50 67.36,48.27 68.07,50.13 68.58,52.05 68.90,54.01 69.00,56.00" fill="#FFFFFF"/>
+<polygon points="25.00,56.00 75.00,56.00 77.00,62.00 23.00,62.00" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="46.50,37.50 53.50,37.50 53.50,56.00 46.50,56.00" fill="#C9A44C"/>
+</svg>

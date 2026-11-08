@@ -1,10 +1,10 @@
 @extends('pdf.layout')
 
-@section('title', 'Rekap Transaksi Pekerjaan')
+@section('title', 'Rekap Proyek')
 
 @section('content')
 
-    <h1 class="judul">Rekapitulasi Transaksi Pekerjaan</h1>
+    <h1 class="judul">Rekapitulasi Proyek</h1>
     <p class="sub-judul">
         @if ($periode['dari'] || $periode['sampai'])
             Periode

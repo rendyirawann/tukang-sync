@@ -62,6 +62,6 @@ class SaasSeeder extends Seeder
             ]);
         }
 
-        Setting::set('site_name', 'Transaksi Pekerjaan');
+        Setting::set('site_name', 'Tukangsync');
     }
 }

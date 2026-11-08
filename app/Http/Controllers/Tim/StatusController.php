@@ -34,7 +34,7 @@ class StatusController extends Controller
 
     public static function pesanWa(Team $tim, TeamPayment $bayar, ?string $nama, string $judul = 'konfirmasi pembayaran'): string
     {
-        return "Halo admin, saya ingin {$judul} Transaksi Pekerjaan.\n"
+        return "Halo admin, saya ingin {$judul} Tukangsync.\n"
             ."Kode tim: {$tim->slug}\n"
             ."Invoice: {$bayar->kode}\n"
             .'Paket: '.($bayar->plan?->nama ?? '-')."\n"
