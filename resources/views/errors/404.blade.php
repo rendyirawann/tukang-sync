@@ -1,7 +1,5 @@
 @extends('errors.layout')
 
-@section('title', 'Halaman Tidak Ditemukan')
-
 @section('code', '404')
-@section('heading', 'Halaman Tidak Ditemukan')
-@section('message', 'Halaman yang Anda cari sudah dipindahkan atau tidak pernah ada.')
+@section('title', 'Halaman Tidak Ditemukan')
+@section('message', \App\Support\PesanGalat::untuk($exception ?? null, 'Halaman yang Anda cari tidak ada, sudah dipindahkan, atau alamatnya salah ketik.'))

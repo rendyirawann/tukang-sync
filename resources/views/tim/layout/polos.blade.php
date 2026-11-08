@@ -15,7 +15,7 @@
     <nav class="pub-nav py-3">
         <div class="container d-flex align-items-center justify-content-between">
             <a href="{{ route('beranda') }}" class="d-flex align-items-center gap-2 text-white fw-bold fs-4">
-                <img src="{{ $brand['logo_url'] }}" alt="" width="32" height="32"> Tukangsync
+                <img src="{{ $brand['logo_light_url'] }}" alt="{{ config('app.name') }}" width="150" height="36">
             </a>
             <div class="d-flex gap-2">
                 <a href="{{ route('beranda') }}#masuk" class="btn btn-sm btn-outline btn-outline-light text-white">Masuk</a>
@@ -24,7 +24,8 @@
         </div>
     </nav>
     @yield('content')
-    <footer class="text-center text-muted py-8 fs-7">&copy; {{ date('Y') }} Tukangsync</footer>
+    <footer class="text-center text-muted py-8 fs-7">&copy; {{ now()->year }} {{ config('app.name') }}. All rights reserved.</footer>
     @include('tim.layout.scripts')
+    @include('partials.field-errors')
 </body>
 </html>

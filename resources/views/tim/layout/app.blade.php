@@ -41,8 +41,7 @@
     <aside class="tp-side" id="tpSide">
         <div class="brand">
             <div class="d-flex align-items-center gap-2 mb-2">
-                <img src="{{ $brand['logo_url'] }}" alt="" width="30" height="30">
-                <span class="fw-bold text-white fs-5">Tukangsync</span>
+                <img src="{{ $brand['logo_light_url'] }}" alt="{{ config('app.name') }}" width="150" height="36">
             </div>
             <div class="text-white fw-semibold text-truncate">{{ $tim->nama }}</div>
             <span class="kode-badge fs-8">{{ $tim->slug }}</span>
@@ -99,11 +98,22 @@
                     <a href="{{ route('tim.langganan.index', $tim->slug) }}" class="btn btn-sm btn-danger">Perpanjang</a>
                 </div>
             @endif
+            @if ($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    <div class="fw-bold mb-1">Periksa kembali isian Anda:</div>
+                    <ul class="mb-0 ps-5">
+                        @foreach ($errors->all() as $pesanGalat)
+                            <li>{{ $pesanGalat }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             @yield('content')
         </main>
     </div>
 
     @include('tim.layout.scripts')
+    @include('partials.field-errors')
     <script>
         (function () {
             var s = document.getElementById('tpSide'), o = document.getElementById('tpOverlay'), t = document.getElementById('tpToggle');

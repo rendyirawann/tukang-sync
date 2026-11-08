@@ -1,7 +1,5 @@
 @extends('errors.layout')
 
-@section('title', 'Terjadi Kesalahan')
-
 @section('code', '500')
-@section('heading', 'Terjadi Kesalahan')
-@section('message', 'Server mengalami kendala saat memproses permintaan Anda. Tim kami sudah diberi tahu.')
+@section('title', 'Terjadi Kesalahan')
+@section('message', \App\Support\PesanGalat::untuk($exception ?? null, 'Terjadi kesalahan pada server. Tim kami akan memeriksanya; silakan coba beberapa saat lagi.'))

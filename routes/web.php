@@ -114,5 +114,6 @@ require __DIR__ . '/auth.php';
 
 // Pendaftaran publik lalu panel tim. HARUS paling akhir: rute /{tim} akan
 // menangkap path satu segmen apa pun yang belum didaftarkan di atas.
+require __DIR__.'/seo.php';
 require __DIR__.'/publik.php';
 require __DIR__.'/tim.php';

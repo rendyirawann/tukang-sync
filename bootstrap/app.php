@@ -46,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prepend([
             \App\Http\Middleware\ResetTimAktif::class,
             \App\Http\Middleware\SecurityHeaders::class,
+            \App\Http\Middleware\RobotsTag::class,
             \App\Http\Middleware\BlockSuspiciousRequests::class,
         ]);
 
@@ -205,5 +206,54 @@ return Application::configure(basePath: dirname(__DIR__))
             report($e);
 
             return ApiResponse::error('Terjadi kesalahan pada server. Silakan coba lagi.', 500, code: 'SERVER_ERROR');
+        });
+
+        /*
+         * AJAX dari panel web (bukan /api): JSON { status, message, errors? }.
+         * Kunci message & errors sama dengan bawaan Laravel, jadi skrip
+         * starter yang membaca response.errors tetap bekerja; status ditambah
+         * supaya frontend bisa membedakan sukses dan gagal dengan satu kunci.
+         * Request web biasa tidak disentuh dan jatuh ke view errors.*.
+         */
+        $exceptions->render(function (Throwable $e, Request $request) use ($isApi) {
+            if ($isApi($request) || ! $request->expectsJson()) {
+                return null;
+            }
+
+            if ($e instanceof ValidationException) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->validator->errors()->first() ?: 'Data yang dikirim tidak valid.',
+                    'errors' => $e->errors(),
+                ], $e->status);
+            }
+
+            $status = match (true) {
+                $e instanceof AuthenticationException => 401,
+                $e instanceof AuthorizationException => 403,
+                $e instanceof ModelNotFoundException => 404,
+                $e instanceof \Illuminate\Session\TokenMismatchException => 419,
+                $e instanceof HttpExceptionInterface => $e->getStatusCode(),
+                default => 500,
+            };
+
+            if ($status >= 500 && config('app.debug')) {
+                return null;
+            }
+
+            $pesan = match ($status) {
+                401 => 'Sesi Anda sudah berakhir. Silakan masuk kembali.',
+                403 => \App\Support\PesanGalat::untuk($e, 'Anda tidak memiliki akses untuk tindakan ini.'),
+                404 => 'Data atau halaman tidak ditemukan.',
+                419 => 'Sesi kedaluwarsa, silakan muat ulang halaman.',
+                429 => 'Terlalu banyak permintaan. Silakan tunggu sebentar.',
+                default => $status >= 500
+                    ? 'Terjadi kesalahan pada server. Silakan coba lagi.'
+                    : \App\Support\PesanGalat::untuk($e, 'Permintaan tidak dapat diproses.'),
+            };
+
+            $headers = $e instanceof HttpExceptionInterface ? $e->getHeaders() : [];
+
+            return response()->json(['status' => 'error', 'message' => $pesan], $status, $headers);
         });
     })->create();

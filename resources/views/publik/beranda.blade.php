@@ -1,5 +1,44 @@
 @extends('tim.layout.polos')
-@section('title', 'Catatan Proyek & RAB Konstruksi')
+{{-- Tanpa @section('title'): beranda memakai "Tukangsync — tagline". --}}
+@section('meta_description', config('app.description'))
+
+@section('json_ld')
+@php
+    $jsonLd = [
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'Organization',
+                'name' => config('app.name'),
+                'url' => url('/'),
+                'logo' => asset('assets/media/branding/android-chrome-512x512.png'),
+            ],
+            [
+                '@type' => 'WebSite',
+                'name' => config('app.name'),
+                'url' => url('/'),
+                'inLanguage' => 'id-ID',
+                'description' => config('app.description'),
+            ],
+            [
+                '@type' => 'WebApplication',
+                'name' => config('app.name'),
+                'url' => url('/'),
+                'applicationCategory' => 'BusinessApplication',
+                'operatingSystem' => 'Web, Android',
+                'description' => config('app.description'),
+                'offers' => \App\Models\Plan::aktif()->get()->map(fn ($p) => [
+                    '@type' => 'Offer',
+                    'name' => $p->nama,
+                    'price' => (string) $p->harga,
+                    'priceCurrency' => 'IDR',
+                ])->values()->all(),
+            ],
+        ],
+    ];
+@endphp
+<script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+@endsection
 
 @section('content')
 <section class="hero py-15">

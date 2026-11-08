@@ -40,20 +40,23 @@ class Brand
             'tagline' => self::clean($settings['site_tagline'] ?? null) ?: 'RAB & proyek, sinkron satu tim',
             'description' => self::clean($settings['site_description'] ?? null)
                 ?: (string) config('app.description'),
-            'keywords' => self::clean($settings['site_keywords'] ?? null) ?: Str::lower($name) . ', admin panel, dashboard',
-            'author' => self::clean($settings['site_author'] ?? null) ?: 'Rendy Irawan',
-            'robots' => self::clean($settings['seo_robots'] ?? null) ?: 'noindex, nofollow',
+            'keywords' => self::clean($settings['site_keywords'] ?? null) ?: (string) config('seo.keywords'),
+            'author' => self::clean($settings['site_author'] ?? null) ?: (string) config('seo.author'),
+            'robots' => self::clean($settings['seo_robots'] ?? null) ?: (app()->isProduction() ? 'index, follow' : 'noindex, nofollow'),
             'twitter' => self::clean($settings['seo_twitter_handle'] ?? null),
             'google_verification' => self::clean($settings['seo_google_verification'] ?? null),
             'theme_color' => self::color($settings['site_theme_color'] ?? null),
             'initials' => Str::upper(Str::substr(preg_replace('/[^\p{L}\p{N}]/u', '', $name) ?: 'A', 0, 2)),
 
-            'logo_url' => self::assetUrl($settings['site_logo'] ?? null, 'assets/media/branding/logo-mark.svg'),
+            'logo_url' => self::assetUrl($settings['site_logo'] ?? null, 'assets/media/branding/logo-icon.svg'),
+            'logo_full_url' => self::publicUrl('assets/media/branding/logo.svg'),
+            'logo_light_url' => self::publicUrl('assets/media/branding/logo-light.svg'),
+            'favicon_svg_url' => self::publicUrl('assets/media/branding/favicon.svg'),
             'favicon_url' => self::assetUrl($settings['site_favicon'] ?? null, 'assets/media/branding/favicon.ico'),
-            'favicon_png_url' => self::publicUrl('assets/media/branding/favicon-32.png'),
+            'favicon_png_url' => self::publicUrl('assets/media/branding/favicon-32x32.png'),
             'apple_icon_url' => self::publicUrl('assets/media/branding/apple-touch-icon.png'),
             'manifest_url' => self::publicUrl('assets/media/branding/site.webmanifest'),
-            'og_image_url' => self::assetUrl($settings['site_og_image'] ?? null, 'assets/media/branding/og-image.png'),
+            'og_image_url' => self::assetUrl($settings['site_og_image'] ?? null, (string) config('seo.og_image')),
 
             'owner' => self::clean($settings['footer_owner'] ?? null) ?: 'Rendy Irawan',
             'github' => self::url($settings['footer_github'] ?? null) ?: 'https://github.com/rendyirawann',
@@ -105,7 +108,7 @@ class Brand
             $path = str_contains($value, '/') ? ltrim($value, '/') : 'assets/media/logos/' . $value;
 
             if (is_file(public_path($path))) {
-                return asset($path);
+                return self::versioned($path);
             }
         }
 
@@ -116,11 +119,20 @@ class Brand
     private static function publicUrl(string $path): string
     {
         if (is_file(public_path($path))) {
-            return asset($path);
+            return self::versioned($path);
         }
 
         // Generated assets have not been built yet (php artisan app:branding).
         return asset('assets/media/logos/base-logo.png');
+    }
+
+    /**
+     * URL aset dengan ?v=<waktu ubah berkas>, supaya browser mengambil logo
+     * dan favicon baru setelah diganti alih-alih memakai salinan cache lama.
+     */
+    private static function versioned(string $path): string
+    {
+        return asset($path).'?v='.filemtime(public_path($path));
     }
 
     private static function clean(?string $value): ?string
