@@ -24,7 +24,7 @@
         </div>
     </nav>
     @yield('content')
-    <footer class="text-center text-muted py-8 fs-7">&copy; {{ now()->year }} {{ config('app.name') }}. All rights reserved.</footer>
+    <footer class="text-center text-muted py-8 fs-7">&copy; {{ now()->year }} {{ config('app.name') }}. All rights reserved. &middot; Part of <a href="https://mdt-solution.site" target="_blank" rel="noopener" class="text-gray-800 text-hover-primary fw-semibold">MDT Solution</a></footer>
     @include('tim.layout.scripts')
     @include('partials.field-errors')
 </body>

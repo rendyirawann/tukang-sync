@@ -413,7 +413,7 @@
     <div class="mx-auto flex max-w-full flex-col items-center justify-between gap-4 px-5 text-xs text-slate-500 sm:flex-row sm:px-8">
         <div class="flex items-center gap-2">
             <img src="{{ $logo }}" alt="" width="20" height="20" class="size-5 rounded" loading="lazy">
-            <span>&copy; {{ now()->year }} {{ config('app.name') }}. All rights reserved.</span>
+            <span>&copy; {{ now()->year }} {{ config('app.name') }}. All rights reserved. &middot; Part of <a href="https://mdt-solution.site" target="_blank" rel="noopener" class="font-semibold text-navy-600 hover:underline">MDT Solution</a></span>
         </div>
         <nav class="flex items-center gap-6 font-medium" aria-label="Tautan bawah">
             <a href="#fitur" class="hover:text-navy-900">Fitur</a>

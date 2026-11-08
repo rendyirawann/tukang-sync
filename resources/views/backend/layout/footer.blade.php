@@ -6,6 +6,7 @@
                  over on its own without any client clock involved. --}}
             <div class="text-muted fs-7">
                 &copy; {{ now()->year }} {{ config('app.name') }}. All rights reserved.
+                &middot; Part of <a href="https://mdt-solution.site" target="_blank" rel="noopener" class="text-gray-800 text-hover-primary fw-semibold">MDT Solution</a>
             </div>
 
             <nav class="app-footer__social" aria-label="Tautan pengembang">
