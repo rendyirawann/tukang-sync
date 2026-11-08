@@ -10,7 +10,7 @@ Panduan lengkap: `docs/DEPLOYMENT.md`. Skrip: `deploy/`.
 ## Sebelum rilis
 1. `php artisan test` hijau; `./vendor/bin/pint --test`.
 2. Migrasi baru aman dijalankan di data yang ada (tidak menghapus kolom berisi data tanpa rencana).
-3. Merge ke branch `saas`, `git push origin saas`.
+3. Merge ke branch `main`, `git push origin main`.
 
 ## Server baru (sekali)
 ```bash

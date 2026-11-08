@@ -11,7 +11,7 @@ dan catat "sudah" di laporan. Jangan menduplikasi middleware/header/berkas yang 
 ## 0. Deteksi identitas (tanpa bertanya kecuali mustahil)
 - Nama folder root → PROJECT_NAME (Title Case), PROJECT_SLUG (kebab), PROJECT_SHORT (1–3 huruf),
   DB_DATABASE (snake). APP_URL tetap. **Bila pengguna sudah memilih nama merek** (contoh project ini:
-  folder `o-saas`, merek "Tukangsync"), merek itu menang atas nama folder.
+  folder `o-api`, merek "Tukangsync"), merek itu menang atas nama folder.
 - PROJECT_DESCRIPTION (≤155 karakter, Bahasa Indonesia) dan 5–10 keyword dari README, routes, Models,
   Controllers, migration, menu — fungsi nyata aplikasi.
 - WARNA_UTAMA & WARNA_SEKUNDER (teks putih di atas warna utama lolos WCAG AA; selaraskan tema).

@@ -49,11 +49,10 @@ systemd: tukangsync-octane, tukangsync-queue, tukangsync-scheduler
 
 ## 0. Sebelum mulai
 
-1. **Push kode ke GitHub** (dari komputer lokal, folder `o/o-saas`):
+1. **Push kode ke GitHub** (dari komputer lokal, folder `o/o-api`):
    ```bash
-   git checkout saas
-   git merge setup/tukangsync
-   git push origin saas
+   git checkout main
+   git push origin main
    ```
 2. **DNS**: `transaksi.dormansyah.com` → A record ke IP server
    (`76.13.23.58`, sudah benar). Periksa: `dig +short transaksi.dormansyah.com`.
@@ -87,7 +86,7 @@ Pilih salah satu:
 
 ```bash
 # di server, sebagai root
-curl -fsSL https://raw.githubusercontent.com/rendyirawann/0-apps/saas/deploy/setup-server.sh -o setup.sh
+curl -fsSL https://raw.githubusercontent.com/rendyirawann/0-apps/main/deploy/setup-server.sh -o setup.sh
 DOMAIN=transaksi.dormansyah.com EMAIL=email-anda@gmail.com bash setup.sh
 ```
 
@@ -177,7 +176,7 @@ gunzip -c /var/backups/tukangsync/tukangsync-YYYYMMDD-HHMMSS.sql.gz | sudo -u po
 
 ## Deploy berikutnya
 
-Setiap ada perubahan yang sudah di-push ke branch `saas`:
+Setiap ada perubahan yang sudah di-push ke branch `main`:
 
 ```bash
 sudo -u www-data /var/www/tukangsync/repo/deploy/deploy.sh

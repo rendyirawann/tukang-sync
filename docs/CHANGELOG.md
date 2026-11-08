@@ -34,7 +34,7 @@ multi-tim di atas kerangka startertempalt.
   realisasi, progres, log harian. Katalog awal 35 material/upah + 12 analisa.
 - API RAB (lihat `docs/API-RAB.md`), login API dengan `kode_tim`, kode error
   `TEAM_PENDING`, `TEAM_SUSPENDED`, `SUBSCRIPTION_EXPIRED`.
-- Aplikasi Android SaaS (`o-saas-mobile`, applicationId `com.oproject.o_saas`).
+- Aplikasi Android SaaS (`o-mobile`, applicationId `com.oproject.o_saas`).
 
 ### Diubah
 - ID akun menjadi UUID; peran lama `superadmin/petugas` dipetakan ke

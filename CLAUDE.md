@@ -2,7 +2,7 @@
 
 Aplikasi SaaS catatan proyek konstruksi untuk tim: RAB per bangunan/lantai/ruangan,
 kebutuhan material otomatis (AHSP), progres, log harian, belanja, arus kas, bagi hasil.
-Web (superadmin + panel tim) dan API untuk aplikasi Android (`../o-saas-mobile`).
+Web (superadmin + panel tim) dan API untuk aplikasi Android (`../o-mobile`).
 
 ## Tech stack
 

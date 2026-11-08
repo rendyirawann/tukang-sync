@@ -15,7 +15,7 @@ set -euo pipefail
 DOMAIN="${DOMAIN:-transaksi.dormansyah.com}"
 EMAIL="${EMAIL:-}"
 REPO="${REPO:-https://github.com/rendyirawann/0-apps.git}"
-BRANCH="${BRANCH:-saas}"
+BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-/var/www/tukangsync}"
 DB_NAME="${DB_NAME:-tukangsync}"
 DB_USER="${DB_USER:-tukangsync}"

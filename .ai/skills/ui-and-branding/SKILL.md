@@ -19,7 +19,7 @@ Halaman: `@extends(...)` + `@section('content')`; skrip di `@push('scripts')` (c
 - Warna: utama `#1E3A5F` (navy), gelap `#0F1D33`, terang `#4A7BC4`, sekunder emas `#C9A44C`.
 - Logo: `public/assets/media/branding/logo-mark.svg` (helm + panah sinkron), PNG/favicon di folder sama;
   `$brand['logo_url']`. Sumber gambar dibuat oleh skrip Pillow (geometri 100×100) — ubah geometrinya
-  lalu hasilkan ulang SVG & PNG bersama-sama, juga `../o-saas-mobile/assets/logo/*`.
+  lalu hasilkan ulang SVG & PNG bersama-sama, juga `../o-mobile/assets/logo/*`.
 - Komponen Metronic: `card`, `table align-middle table-row-dashed`, `badge badge-light-{warna}`
   (warna dari `StatusTim::warna()`), ikon `ki-duotone`.
 

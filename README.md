@@ -29,7 +29,7 @@ kas, dan bagi hasil. Web dan Android tersinkron dalam satu tim.
 | UI web | Blade + tema Metronic (`public/assets`), jQuery, DataTables |
 | Dokumen | barryvdh/laravel-dompdf (PDF), darkaonline/l5-swagger (OpenAPI) |
 | Server | Laravel Octane (FrankenPHP) di belakang nginx |
-| Mobile | Flutter (folder terpisah `../o-saas-mobile`) |
+| Mobile | Flutter (folder terpisah `../o-mobile`) |
 
 ## Kebutuhan sistem (lokal)
 
