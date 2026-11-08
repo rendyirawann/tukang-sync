@@ -19,5 +19,6 @@
     },
     "dependencies": {
         "alpinejs": "^3.15.8"
-    }
+    },
+    "name": "tukangsync"
 }

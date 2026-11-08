@@ -13,7 +13,12 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Tukangsync'),
+
+    /*
+    | Deskripsi singkat aplikasi (meta description, manifest, og:description).
+    */
+    'description' => env('APP_DESCRIPTION', 'Tukangsync: aplikasi catatan proyek konstruksi untuk tim.'),
 
     /*
     |--------------------------------------------------------------------------

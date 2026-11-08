@@ -11,12 +11,12 @@ return new class extends Migration
      */
     private function defaults(): array
     {
-        $appName = config('app.name', 'StarterTemp');
+        $appName = config('app.name', 'Tukangsync');
 
         return [
             'site_short_name' => \Illuminate\Support\Str::limit($appName, 12, ''),
-            'site_tagline' => 'Modern Admin Dashboard',
-            'site_description' => $appName . ' — panel administrasi modern untuk mengelola pengguna, hak akses, dan operasional aplikasi Anda.',
+            'site_tagline' => 'RAB & proyek, sinkron satu tim',
+            'site_description' => (string) config('app.description'),
             'site_keywords' => strtolower($appName) . ', admin panel, dashboard, manajemen pengguna, laravel',
             'site_author' => 'Rendy Irawan',
             'site_favicon' => 'assets/media/branding/favicon.ico',

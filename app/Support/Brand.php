@@ -32,14 +32,14 @@ class Brand
     public static function compute(): array
     {
         $settings = self::settings();
-        $name = self::clean($settings['site_name'] ?? null) ?: config('app.name', 'StarterTemp');
+        $name = self::clean($settings['site_name'] ?? null) ?: config('app.name', 'Tukangsync');
 
         return [
             'name' => $name,
             'short_name' => self::clean($settings['site_short_name'] ?? null) ?: Str::limit($name, 12, ''),
-            'tagline' => self::clean($settings['site_tagline'] ?? null) ?: 'Modern Admin Dashboard',
+            'tagline' => self::clean($settings['site_tagline'] ?? null) ?: 'RAB & proyek, sinkron satu tim',
             'description' => self::clean($settings['site_description'] ?? null)
-                ?: $name . ' — panel administrasi modern untuk mengelola pengguna, hak akses, dan operasional aplikasi.',
+                ?: (string) config('app.description'),
             'keywords' => self::clean($settings['site_keywords'] ?? null) ?: Str::lower($name) . ', admin panel, dashboard',
             'author' => self::clean($settings['site_author'] ?? null) ?: 'Rendy Irawan',
             'robots' => self::clean($settings['seo_robots'] ?? null) ?: 'noindex, nofollow',
