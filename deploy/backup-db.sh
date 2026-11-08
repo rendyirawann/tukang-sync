@@ -2,7 +2,7 @@
 #
 # Cadangan harian database Tukangsync. Pasang di cron root:
 #
-#   0 1 * * * /var/www/tukangsync/repo/deploy/backup-db.sh >> /var/log/tukangsync/backup.log 2>&1
+#   0 1 * * * /var/www/tukang-sync/repo/deploy/backup-db.sh >> /var/log/tukangsync/backup.log 2>&1
 #
 # Menyimpan 14 cadangan terakhir di /var/backups/tukangsync.
 
@@ -20,7 +20,7 @@ sudo -u postgres pg_dump --no-owner "$DB_NAME" | gzip -9 > "$FILE"
 chmod 600 "$FILE"
 
 # Bukti transfer & foto struk ikut dicadangkan (berkas, bukan database).
-tar -czf "$DIR/storage-$(date +%Y%m%d).tar.gz" -C /var/www/tukangsync/shared storage/app 2>/dev/null || true
+tar -czf "$DIR/storage-$(date +%Y%m%d).tar.gz" -C /var/www/tukang-sync/shared storage/app 2>/dev/null || true
 
 ls -1t "$DIR"/"${DB_NAME}"-*.sql.gz | tail -n "+$((KEEP + 1))" | xargs -r rm -f
 ls -1t "$DIR"/storage-*.tar.gz 2>/dev/null | tail -n "+$((KEEP + 1))" | xargs -r rm -f

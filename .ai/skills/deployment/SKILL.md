@@ -1,6 +1,6 @@
 ---
 name: deployment
-description: Checklist dan perintah rilis Tukangsync ke server produksi (transaksi.dormansyah.com) dengan skrip di deploy/. Pakai saat menyiapkan server, merilis perubahan, rollback, atau memeriksa produksi.
+description: Checklist dan perintah rilis Tukangsync ke server produksi (tukang.hustlesync.my.id) dengan skrip di deploy/. Pakai saat menyiapkan server, merilis perubahan, rollback, atau memeriksa produksi.
 ---
 
 # Deployment
@@ -14,10 +14,10 @@ Panduan lengkap: `docs/DEPLOYMENT.md`. Skrip: `deploy/`.
 
 ## Server baru (sekali)
 ```bash
-DOMAIN=transaksi.dormansyah.com EMAIL=... bash deploy/setup-server.sh
-sudo -u www-data /var/www/tukangsync/repo/deploy/deploy.sh
+DOMAIN=tukang.hustlesync.my.id EMAIL=... bash deploy/setup-server.sh
+sudo -u www-data /var/www/tukang-sync/repo/deploy/deploy.sh
 systemctl enable --now tukangsync-octane tukangsync-queue tukangsync-scheduler
-cd /var/www/tukangsync/current
+cd /var/www/tukang-sync/current
 sudo -u www-data php artisan db:seed --class=RolePermissionSeeder --force
 sudo -u www-data php artisan db:seed --class=SuperAdminSeeder --force
 sudo -u www-data php artisan db:seed --class=SaasSeeder --force
@@ -27,20 +27,20 @@ pasang cron `deploy/backup-db.sh`.
 
 ## Rilis rutin
 ```bash
-sudo -u www-data /var/www/tukangsync/repo/deploy/deploy.sh
+sudo -u www-data /var/www/tukang-sync/repo/deploy/deploy.sh
 ```
 
 ## Rollback
 ```bash
-ln -sfn /var/www/tukangsync/releases/<SEBELUMNYA> /var/www/tukangsync/current
-cd /var/www/tukangsync/current && sudo -u www-data php artisan octane:reload
+ln -sfn /var/www/tukang-sync/releases/<SEBELUMNYA> /var/www/tukang-sync/current
+cd /var/www/tukang-sync/current && sudo -u www-data php artisan octane:reload
 ```
 
 ## Checklist produksi
 - [ ] `APP_ENV=production`, `APP_DEBUG=false`, `LOG_LEVEL=error`
 - [ ] `TRUSTED_PROXIES=127.0.0.1`, `SESSION_SECURE_COOKIE=true`, HTTPS valid, HSTS
 - [ ] Octane port 8010, queue, scheduler aktif
-- [ ] `curl https://transaksi.dormansyah.com/api/health` → 200
+- [ ] `curl https://tukang.hustlesync.my.id/api/health` → 200
 - [ ] Cadangan harian berjalan
 
 ## Hindari

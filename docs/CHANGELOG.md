@@ -10,7 +10,7 @@ Semua perubahan penting dicatat di sini. Format mengikuti
 - Setup project **Tukangsync**: identitas (nama, logo helm + panah sinkron,
   favicon), dokumentasi `docs/`, `CLAUDE.md`, guideline & skill project di
   `.ai/` dan `.claude/skills/`.
-- Skrip deploy server baru untuk `transaksi.dormansyah.com`
+- Skrip deploy server baru untuk `tukang.hustlesync.my.id`
   (`deploy/`, `docs/DEPLOYMENT.md`): FrankenPHP/Octane di port 8010, nginx +
   Let's Encrypt, systemd, cadangan harian.
 - Perintah terjadwal `saas:bersihkan-pendaftaran` (harian 02:00).

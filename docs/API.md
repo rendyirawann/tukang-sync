@@ -6,7 +6,7 @@ OpenAPI di controller). Spesifikasi JSON: `/docs`. Detail endpoint RAB:
 
 ## Dasar
 
-- Base URL: `https://transaksi.dormansyah.com/api`
+- Base URL: `https://tukang.hustlesync.my.id/api`
 - Header: `Accept: application/json`, `Authorization: Bearer <token>`
 - Envelope:
   ```json
@@ -30,7 +30,7 @@ OpenAPI di controller). Spesifikasi JSON: `/docs`. Detail endpoint RAB:
 
 Contoh:
 ```bash
-curl -X POST https://transaksi.dormansyah.com/api/auth/login \
+curl -X POST https://tukang.hustlesync.my.id/api/auth/login \
   -H 'Accept: application/json' -H 'Content-Type: application/json' \
   -d '{"kode_tim":"DEMO","email":"owner@demo.test","password":"password123","device_name":"curl"}'
 ```

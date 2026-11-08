@@ -13,7 +13,7 @@ Wants=redis-server.service
 Type=simple
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/tukangsync/current
+WorkingDirectory=/var/www/tukang-sync/current
 
 # --max-time=3600: berhenti tiap jam lalu dihidupkan systemd, sehingga selalu
 # memakai kode rilis terbaru.
@@ -33,7 +33,7 @@ StandardError=append:/var/log/tukangsync/queue.error.log
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
-ReadWritePaths=/var/www/tukangsync/shared/storage /var/www/tukangsync/current/bootstrap/cache /var/log/tukangsync
+ReadWritePaths=/var/www/tukang-sync/shared/storage /var/www/tukang-sync/current/bootstrap/cache /var/log/tukangsync
 
 [Install]
 WantedBy=multi-user.target

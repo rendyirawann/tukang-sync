@@ -2,12 +2,12 @@
 #
 # Deploy Tukangsync. Dijalankan DI SERVER:
 #
-#   sudo -u www-data /var/www/tukangsync/repo/deploy/deploy.sh
+#   sudo -u www-data /var/www/tukang-sync/repo/deploy/deploy.sh
 #
 # Tata letak rilis bersimbol tautan -- pergantian versi terjadi dalam satu
 # operasi dan bisa dikembalikan seketika:
 #
-#   /var/www/tukangsync/
+#   /var/www/tukang-sync/
 #   ├── repo/              klon git
 #   ├── releases/2026…/    satu folder per rilis
 #   ├── shared/            BERTAHAN antar rilis
@@ -17,7 +17,7 @@
 
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/var/www/tukangsync}"
+APP_DIR="${APP_DIR:-/var/www/tukang-sync}"
 REPO_DIR="$APP_DIR/repo"
 RELEASES_DIR="$APP_DIR/releases"
 SHARED_DIR="$APP_DIR/shared"

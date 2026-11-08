@@ -1,14 +1,15 @@
 # Deploy Tukangsync ke server
 
 Panduan ini memasang **Tukangsync** (web superadmin, web tim, dan API untuk
-aplikasi Android) di **https://transaksi.dormansyah.com** — alamat yang sudah
-tertanam di APK `transaksi-saas.apk`.
+aplikasi Android) di **https://tukang.hustlesync.my.id**, dari repo
+**github.com/rendyirawann/tukang-sync**, ke folder `/var/www/tukang-sync` di server.
+Alamat ini sudah tertanam di APK `tukangsync.apk`.
 
 Satu aplikasi Laravel melayani semuanya:
 
 | Alamat | Isi |
 |---|---|
-| `https://transaksi.dormansyah.com/` | beranda & paket |
+| `https://tukang.hustlesync.my.id/` | beranda & paket |
 | `/daftar` | pendaftaran tim |
 | `/admin/login` | panel superadmin (Anda) |
 | `/{KODE}/login` | panel web tim, mis. `/K7QX/login` |
@@ -26,8 +27,8 @@ systemd: tukangsync-octane, tukangsync-queue, tukangsync-scheduler
 ```
 
 ```
-/var/www/tukangsync/
-├── repo/              klon git (branch saas)
+/var/www/tukang-sync/
+├── repo/              klon git (branch main)
 ├── releases/2026…/    satu folder per rilis (5 terakhir disimpan)
 ├── shared/
 │   ├── .env           konfigurasi produksi
@@ -41,7 +42,7 @@ systemd: tukangsync-octane, tukangsync-queue, tukangsync-scheduler
 |---|---|
 | `deploy/setup-server.sh` | menyiapkan server dari nol (sekali) |
 | `deploy/deploy.sh` | deploy setiap ada perubahan |
-| `deploy/nginx/transaksi.dormansyah.com.conf` | konfigurasi nginx |
+| `deploy/nginx/tukang.hustlesync.my.id.conf` | konfigurasi nginx |
 | `deploy/systemd/tukangsync-*.service` | Octane, antrean, penjadwal |
 | `deploy/backup-db.sh` | cadangan harian database + berkas unggahan |
 
@@ -54,31 +55,20 @@ systemd: tukangsync-octane, tukangsync-queue, tukangsync-scheduler
    git checkout main
    git push origin main
    ```
-2. **DNS**: `transaksi.dormansyah.com` → A record ke IP server
-   (`76.13.23.58`, sudah benar). Periksa: `dig +short transaksi.dormansyah.com`.
+2. **DNS**: buat A record `tukang` di zona `hustlesync.my.id` → IP server.
+   Periksa: `dig +short tukang.hustlesync.my.id` (harus menampilkan IP server)
+   sebelum menjalankan setup, karena sertifikat SSL diminta untuk domain ini.
 3. Server Ubuntu 22.04/24.04, akses root, port 80 & 443 terbuka:
    ```bash
    ufw allow OpenSSH && ufw allow 'Nginx Full' && ufw enable
    ```
 
-### Tentang o-api lama
+### Aplikasi lain di server yang sama
 
-Sekarang domain ini hanya menampilkan halaman placeholder dengan sertifikat
-SSL yang salah, jadi **tidak ada yang hilang** bila Tukangsync mengambil alih.
-Pilih salah satu:
-
-- **A. Ganti sepenuhnya (disarankan).** Tukangsync menggantikan o-api; APK
-  lama tidak dipakai lagi. `setup-server.sh` otomatis menonaktifkan
-  konfigurasi nginx lain yang memakai `transaksi.dormansyah.com`.
-  Bila o-api pernah dipasang di server yang sama dan tidak dipakai:
-  ```bash
-  systemctl disable --now o-api-octane o-api-queue o-api-scheduler 2>/dev/null
-  ```
-- **B. Jalankan berdampingan.** o-api tetap di domain lain (mis.
-  `rendy-irawan.my.id` atau `lama.dormansyah.com`) pada port 8000;
-  Tukangsync memakai port **8010**, folder `/var/www/tukangsync`, dan
-  database `tukangsync`, jadi keduanya tidak bertabrakan. Ubah alamat API di
-  APK lama lewat menu *Pengaturan › Alamat API* bila perlu.
+Tukangsync berdiri sendiri: folder `/var/www/tukang-sync`, port Octane
+**8010**, database `tukangsync`, unit systemd `tukangsync-*`, dan konfigurasi
+nginx khusus `tukang.hustlesync.my.id`. Aplikasi lain (mis. o-api lama di
+`tukang.hustlesync.my.id`) tidak disentuh, selama tidak memakai port 8010.
 
 ---
 
@@ -86,8 +76,8 @@ Pilih salah satu:
 
 ```bash
 # di server, sebagai root
-curl -fsSL https://raw.githubusercontent.com/rendyirawann/0-apps/main/deploy/setup-server.sh -o setup.sh
-DOMAIN=transaksi.dormansyah.com EMAIL=email-anda@gmail.com bash setup.sh
+curl -fsSL https://raw.githubusercontent.com/rendyirawann/tukang-sync/main/deploy/setup-server.sh -o setup.sh
+DOMAIN=tukang.hustlesync.my.id EMAIL=email-anda@gmail.com bash setup.sh
 ```
 
 Skrip ini memasang PHP 8.3, nginx, PostgreSQL, Redis, Composer, FrankenPHP,
@@ -96,17 +86,17 @@ certbot; membuat database `tukangsync` + penggunanya; mengklon repo; mengisi
 systemd; lalu **menerbitkan sertifikat Let's Encrypt baru** untuk domain —
 ini yang memperbaiki sertifikat salah yang terpasang sekarang.
 
-> Tambahkan `WITH_WWW=1` hanya bila `www.transaksi.dormansyah.com` juga
+> Tambahkan `WITH_WWW=1` hanya bila `www.tukang.hustlesync.my.id` juga
 > sudah diarahkan ke server.
 
 ### Periksa `.env`
 
 ```bash
-nano /var/www/tukangsync/shared/.env
+nano /var/www/tukang-sync/shared/.env
 ```
 
 Yang sudah diisi otomatis: `APP_ENV=production`, `APP_DEBUG=false`,
-`APP_URL=https://transaksi.dormansyah.com`, `LOG_LEVEL=error`, `DB_*`,
+`APP_URL=https://tukang.hustlesync.my.id`, `LOG_LEVEL=error`, `DB_*`,
 `CACHE_STORE/SESSION_DRIVER/QUEUE_CONNECTION=redis`,
 `SESSION_SECURE_COOKIE=true`, `TRUSTED_PROXIES=127.0.0.1`,
 `L5_SWAGGER_CONST_HOST`, `APP_KEY`.
@@ -117,14 +107,14 @@ Lengkapi sendiri bila perlu: `MAIL_*` (email lupa sandi), `REVERB_*`
 ## 2. Deploy pertama
 
 ```bash
-sudo -u www-data /var/www/tukangsync/repo/deploy/deploy.sh
+sudo -u www-data /var/www/tukang-sync/repo/deploy/deploy.sh
 systemctl enable --now tukangsync-octane tukangsync-queue tukangsync-scheduler
 ```
 
 ## 3. Isi data awal (sekali — TANPA data demo)
 
 ```bash
-cd /var/www/tukangsync/current
+cd /var/www/tukang-sync/current
 sudo -u www-data php artisan db:seed --class=RolePermissionSeeder --force
 sudo -u www-data php artisan db:seed --class=SuperAdminSeeder --force
 sudo -u www-data php artisan db:seed --class=SaasSeeder --force
@@ -136,7 +126,7 @@ tetapi lebih aman eksplisit.
 
 ## 4. Langsung setelah itu
 
-1. Buka `https://transaksi.dormansyah.com/admin/login`, masuk dengan akun
+1. Buka `https://tukang.hustlesync.my.id/admin/login`, masuk dengan akun
    superadmin bawaan (lihat `database/seeders/SuperAdminSeeder.php`), lalu
    **segera ganti sandinya** di menu profil › Keamanan.
 2. **Langganan › Rekening**: hapus rekening contoh (BCA 0000000000), isi
@@ -148,8 +138,8 @@ tetapi lebih aman eksplisit.
 ## 5. Nyalakan HSTS (setelah HTTPS terbukti jalan)
 
 ```bash
-sed -i 's/^SECURITY_HSTS=.*/SECURITY_HSTS=true/' /var/www/tukangsync/shared/.env
-cd /var/www/tukangsync/current && sudo -u www-data php artisan config:cache
+sed -i 's/^SECURITY_HSTS=.*/SECURITY_HSTS=true/' /var/www/tukang-sync/shared/.env
+cd /var/www/tukang-sync/current && sudo -u www-data php artisan config:cache
 sudo -u www-data php artisan octane:reload
 ```
 
@@ -159,8 +149,8 @@ sudah benar.
 ## 6. Cadangan harian
 
 ```bash
-chmod +x /var/www/tukangsync/repo/deploy/backup-db.sh
-( crontab -l 2>/dev/null; echo "0 1 * * * /var/www/tukangsync/repo/deploy/backup-db.sh >> /var/log/tukangsync/backup.log 2>&1" ) | crontab -
+chmod +x /var/www/tukang-sync/repo/deploy/backup-db.sh
+( crontab -l 2>/dev/null; echo "0 1 * * * /var/www/tukang-sync/repo/deploy/backup-db.sh >> /var/log/tukangsync/backup.log 2>&1" ) | crontab -
 ```
 
 Hasilnya di `/var/backups/tukangsync` (14 hari terakhir), berisi dump
@@ -179,7 +169,7 @@ gunzip -c /var/backups/tukangsync/tukangsync-YYYYMMDD-HHMMSS.sql.gz | sudo -u po
 Setiap ada perubahan yang sudah di-push ke branch `main`:
 
 ```bash
-sudo -u www-data /var/www/tukangsync/repo/deploy/deploy.sh
+sudo -u www-data /var/www/tukang-sync/repo/deploy/deploy.sh
 ```
 
 Skrip ini: ambil kode → rilis baru → `composer install --no-dev` →
@@ -190,9 +180,9 @@ lama → health check.
 ## Rollback
 
 ```bash
-ls -1t /var/www/tukangsync/releases        # rilis terbaru di atas
-ln -sfn /var/www/tukangsync/releases/<RILIS-SEBELUMNYA> /var/www/tukangsync/current
-cd /var/www/tukangsync/current && sudo -u www-data php artisan octane:reload
+ls -1t /var/www/tukang-sync/releases        # rilis terbaru di atas
+ln -sfn /var/www/tukang-sync/releases/<RILIS-SEBELUMNYA> /var/www/tukang-sync/current
+cd /var/www/tukang-sync/current && sudo -u www-data php artisan octane:reload
 ```
 
 Migrasi tidak ikut dibatalkan. Bila rilis yang gagal membawa migrasi yang
@@ -201,18 +191,18 @@ merusak, pulihkan dari cadangan database.
 ## Memeriksa setelah deploy
 
 ```bash
-curl -s https://transaksi.dormansyah.com/api/health            # {"success":true,...}
-curl -s -o /dev/null -w '%{http_code}\n' https://transaksi.dormansyah.com/            # 200
-curl -s -o /dev/null -w '%{http_code}\n' https://transaksi.dormansyah.com/admin/login # 200
-curl -s -o /dev/null -w '%{http_code}\n' https://transaksi.dormansyah.com/api/documentation # 200
-curl -sI https://transaksi.dormansyah.com/ | grep -iE 'strict-transport|content-security|x-frame'
+curl -s https://tukang.hustlesync.my.id/api/health            # {"success":true,...}
+curl -s -o /dev/null -w '%{http_code}\n' https://tukang.hustlesync.my.id/            # 200
+curl -s -o /dev/null -w '%{http_code}\n' https://tukang.hustlesync.my.id/admin/login # 200
+curl -s -o /dev/null -w '%{http_code}\n' https://tukang.hustlesync.my.id/api/documentation # 200
+curl -sI https://tukang.hustlesync.my.id/ | grep -iE 'strict-transport|content-security|x-frame'
 
 # Sertifikat harus atas nama domain ini:
-echo | openssl s_client -connect transaksi.dormansyah.com:443 -servername transaksi.dormansyah.com 2>/dev/null \
+echo | openssl s_client -connect tukang.hustlesync.my.id:443 -servername tukang.hustlesync.my.id 2>/dev/null \
   | openssl x509 -noout -subject -dates
 
 # Login API (tim harus sudah aktif):
-curl -s -X POST https://transaksi.dormansyah.com/api/auth/login \
+curl -s -X POST https://tukang.hustlesync.my.id/api/auth/login \
   -H 'Accept: application/json' -H 'Content-Type: application/json' \
   -d '{"kode_tim":"K7QX","email":"owner@contoh.com","password":"..."}'
 ```
@@ -223,7 +213,7 @@ Uji ujung ke ujung: daftar tim lewat `/daftar` → ACC di `/admin` → login di
 ## Log
 
 ```bash
-tail -f /var/www/tukangsync/shared/storage/logs/laravel.log
+tail -f /var/www/tukang-sync/shared/storage/logs/laravel.log
 journalctl -u tukangsync-octane -f
 tail -f /var/log/tukangsync/{octane,queue,scheduler}.error.log
 tail -f /var/log/nginx/tukangsync.error.log

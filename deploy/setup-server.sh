@@ -3,20 +3,20 @@
 # Menyiapkan server dari nol untuk Tukangsync (SaaS).
 # Diuji pada Ubuntu 24.04. Dijalankan SEKALI, sebagai root:
 #
-#   sudo DOMAIN=transaksi.dormansyah.com EMAIL=anda@contoh.com bash setup-server.sh
+#   sudo DOMAIN=tukang.hustlesync.my.id EMAIL=anda@contoh.com bash setup-server.sh
 #
 # Setelah selesai, deploy berikutnya cukup:
-#   sudo -u www-data /var/www/tukangsync/repo/deploy/deploy.sh
+#   sudo -u www-data /var/www/tukang-sync/repo/deploy/deploy.sh
 #
 # Panduan lengkap: docs/DEPLOYMENT.md
 
 set -euo pipefail
 
-DOMAIN="${DOMAIN:-transaksi.dormansyah.com}"
+DOMAIN="${DOMAIN:-tukang.hustlesync.my.id}"
 EMAIL="${EMAIL:-}"
-REPO="${REPO:-https://github.com/rendyirawann/0-apps.git}"
+REPO="${REPO:-https://github.com/rendyirawann/tukang-sync.git}"
 BRANCH="${BRANCH:-main}"
-APP_DIR="${APP_DIR:-/var/www/tukangsync}"
+APP_DIR="${APP_DIR:-/var/www/tukang-sync}"
 DB_NAME="${DB_NAME:-tukangsync}"
 DB_USER="${DB_USER:-tukangsync}"
 PHP_VER="${PHP_VER:-8.3}"
@@ -236,8 +236,8 @@ fi
 
 # Tahap 2: konfigurasi lengkap.
 info "Memasang konfigurasi nginx aplikasi"
-sed "s/transaksi\.dormansyah\.com/${DOMAIN}/g" \
-    "$APP_DIR/repo/deploy/nginx/transaksi.dormansyah.com.conf" \
+sed "s/tukang\.hustlesync\.my\.id/${DOMAIN}/g" \
+    "$APP_DIR/repo/deploy/nginx/tukang.hustlesync.my.id.conf" \
     > /etc/nginx/sites-available/tukangsync.conf
 rm -f /etc/nginx/sites-enabled/tukangsync-acme.conf
 ln -sfn /etc/nginx/sites-available/tukangsync.conf /etc/nginx/sites-enabled/tukangsync.conf
