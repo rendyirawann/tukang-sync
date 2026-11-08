@@ -6,12 +6,14 @@ description: Checklist keamanan OWASP Top 10 / ASVS L2 khusus Tukangsync (multi-
 # Review keamanan
 
 ## Langkah
+
 1. Daftar rute yang berubah: `php artisan route:list --path=...`.
 2. Periksa tiap kategori di bawah; perbaiki atau laporkan.
 3. Jalankan `php artisan test`, `composer audit`, dan semgrep bila tersedia.
 4. Catat kontrol baru di `docs/SECURITY.md`.
 
 ## Checklist
+
 **A01 Akses**
 - [ ] Rute ubah data di dalam `auth` + `platform` (admin) / `tim:anggota` (web tim) / `auth:sanctum` + `tim.api` (API).
 - [ ] Otorisasi lewat `App\Support\Izin` di controller/FormRequest.
@@ -42,5 +44,6 @@ membatasi akun ke tim/admin; regenerate session; pesan generik; throttle.
 **Unggahan**: `mimes` + `max`, disk privat (`Storage::disk('local')`), nama acak, MIME dari isi (`finfo`, lihat `PenyediaTim::bacaDataUrl`).
 
 ## Hindari
+
 - Menambah header keamanan di nginx (ganda → diabaikan browser).
 - `User::find($id)` dari input tanpa `anggotaTim()`.

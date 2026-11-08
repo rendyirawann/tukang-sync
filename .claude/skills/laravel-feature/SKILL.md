@@ -6,9 +6,11 @@ description: Dipakai saat membuat modul/CRUD baru di Tukangsync end-to-end (migr
 # Membuat fitur baru
 
 ## Tujuan
+
 Fitur baru yang aman untuk multi-tenant, konsisten dengan pola yang ada, dan teruji.
 
 ## Langkah
+
 1. **Tentukan pintu**: panel tim (`routes/tim_panel.php`, controller `app/Http/Controllers/Tim/`),
    superadmin (`routes/admin_saas.php`, `app/Http/Controllers/Backend/Saas/`), atau API
    (`routes/api.php`, `app/Http/Controllers/Api/`). Sering dua sekaligus (web tim + API).
@@ -37,6 +39,7 @@ Fitur baru yang aman untuk multi-tenant, konsisten dengan pola yang ada, dan ter
 14. **Docs**: `docs/DATABASE.md` (tabel/ERD), `docs/API.md`/`API-RAB.md`, `docs/CHANGELOG.md`.
 
 ## Checklist
+
 - [ ] Model tim memakai `MilikTim`; anak divalidasi milik induk yang sama
 - [ ] Izin di `Izin.php`, bukan if-else di Blade
 - [ ] Tidak ada model ber-ID integer sebagai subject `ActivityRecorder::log()`
@@ -44,6 +47,7 @@ Fitur baru yang aman untuk multi-tenant, konsisten dengan pola yang ada, dan ter
 - [ ] Teks UI Bahasa Indonesia
 
 ## Hindari
+
 - Query `User::` tanpa `anggotaTim()`.
 - `Rule::unique('tabel')` tanpa scope tim.
 - Logika hitung di view/controller (pindah ke Service, mis. `RabCalculator`).

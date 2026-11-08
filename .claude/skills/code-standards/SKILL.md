@@ -6,6 +6,7 @@ description: Konvensi penamaan, arsitektur, format, dan PHPDoc Tukangsync. Pakai
 # Standar kode
 
 ## Arsitektur
+
 Controller → FormRequest/validate → `App\Support\Izin` → Service/Action → Model → View/Resource.
 
 | Benar | Salah |
@@ -16,6 +17,7 @@ Controller → FormRequest/validate → `App\Support\Izin` → Service/Action �
 | `DB::transaction(fn () => ...)` saat menulis beberapa tabel | beberapa `save()` lepas |
 
 ## Penamaan
+
 - Domain memakai istilah Indonesia yang sudah ada: `Kegiatan` (UI: Proyek), `Pekerjaan`, `Bangunan`,
   `Lantai`, `Ruangan`, `Material`, `Analisa`, method `kelolaRab()`, `hitungUlang()`. Jangan buat sinonim baru.
 - Model singular PascalCase; tabel domain lama tetap (`kegiatan`, `lantai`, `analisa`); tabel baru plural snake_case.
@@ -24,6 +26,7 @@ Controller → FormRequest/validate → `App\Support\Izin` → Service/Action �
 - Variabel camelCase.
 
 ## PHP
+
 - `declare(strict_types=1);` di berkas baru, type hint parameter & return, constructor property promotion,
   `readonly` untuk dependensi, `match`, early return, method pendek.
 - `$fillable` eksplisit; tidak ada `$guarded = []`.
@@ -31,6 +34,7 @@ Controller → FormRequest/validate → `App\Support\Izin` → Service/Action �
 - Eager loading untuk relasi di list (`->with([...])`).
 
 ## PHPDoc
+
 Bahasa Indonesia, jelaskan MENGAPA:
 ```php
 /**
@@ -45,10 +49,12 @@ Bahasa Indonesia, jelaskan MENGAPA:
 (contoh nyata: `Team::terapkanPaket()` di `app/Models/Team.php`)
 
 ## Format & commit
+
 - `./vendor/bin/pint` (preset laravel) — format massal di commit terpisah `style: apply pint`.
 - PHPStan (bila `phpstan.neon` ada).
 - Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `style:`, `test:`, `chore:`.
 
 ## Hindari
+
 - `php -r`/`sed` regex berisi backslash untuk mengedit berkas (pernah mengosongkan controller). Pakai tool Edit.
 - Mengubah perilaku saat merapikan kode lama.

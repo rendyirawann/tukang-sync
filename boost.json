@@ -1,0 +1,23 @@
+{
+    "cloud": false,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": false,
+    "sail": false,
+    "skills": [
+        "infer-conventions",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "octane-development",
+        "socialite-development",
+        "code-standards",
+        "deployment",
+        "laravel-feature",
+        "project-setup",
+        "security-review",
+        "seo-page",
+        "testing",
+        "ui-and-branding",
+        "validation-and-errors"
+    ]
+}

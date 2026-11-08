@@ -6,6 +6,7 @@ description: Membuat halaman publik Tukangsync yang terindeks benar - title, met
 # Halaman publik & SEO
 
 ## Langkah
+
 1. Rute GET di `routes/publik.php` (nama rute jelas, mis. `beranda`, `daftar`).
 2. View di `resources/views/publik/`, extend layout publik (`tim/layout/polos.blade.php`).
 3. Isi section SEO (dibaca partial SEO di `resources/views/partials/`, konfigurasi `config/seo.php`):
@@ -19,9 +20,11 @@ description: Membuat halaman publik Tukangsync yang terindeks benar - title, met
 6. Uji: status 200, ada `<title>`, `meta description`, `canonical`, `og:title`.
 
 ## Wajib noindex
+
 Halaman auth (`/admin/login`, `/{KODE}/login`), panel admin & tim, halaman status pembayaran tim
 (`/{KODE}/status` berisi data pendaftar), halaman error, dan seluruh situs bila `APP_ENV` bukan production.
 
 ## Hindari
+
 - Halaman per tim di sitemap (privat).
 - Deskripsi generik yang sama di semua halaman.
