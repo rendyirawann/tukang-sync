@@ -1,0 +1,30 @@
+# Penjadwal Laravel untuk Tukangsync (schedule:work)
+#
+#   sudo systemctl enable --now tukangsync-scheduler
+#
+# Menjalankan antara lain `saas:bersihkan-pendaftaran` setiap hari 02:00
+# (menghapus pendaftaran tim yang tidak dibayar > 30 hari).
+
+[Unit]
+Description=Tukangsync - Scheduler
+After=network.target postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/tukangsync/current
+ExecStart=/usr/bin/php artisan schedule:work
+Restart=always
+RestartSec=5
+
+StandardOutput=append:/var/log/tukangsync/scheduler.log
+StandardError=append:/var/log/tukangsync/scheduler.error.log
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/www/tukangsync/shared/storage /var/www/tukangsync/current/bootstrap/cache /var/log/tukangsync
+
+[Install]
+WantedBy=multi-user.target

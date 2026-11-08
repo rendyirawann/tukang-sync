@@ -1,0 +1,39 @@
+# Pekerja antrean Tukangsync
+#
+#   sudo systemctl enable --now tukangsync-queue
+#
+# Proses terpisah dari Octane supaya pekerjaan berat tidak menahan worker web.
+
+[Unit]
+Description=Tukangsync - Queue Worker
+After=network.target postgresql.service redis-server.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/tukangsync/current
+
+# --max-time=3600: berhenti tiap jam lalu dihidupkan systemd, sehingga selalu
+# memakai kode rilis terbaru.
+ExecStart=/usr/bin/php artisan queue:work redis \
+    --queue=default \
+    --sleep=3 \
+    --tries=3 \
+    --backoff=10 \
+    --max-time=3600
+
+Restart=always
+RestartSec=3
+
+StandardOutput=append:/var/log/tukangsync/queue.log
+StandardError=append:/var/log/tukangsync/queue.error.log
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/www/tukangsync/shared/storage /var/www/tukangsync/current/bootstrap/cache /var/log/tukangsync
+
+[Install]
+WantedBy=multi-user.target

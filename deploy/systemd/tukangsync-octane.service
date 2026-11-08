@@ -1,0 +1,41 @@
+# Laravel Octane (FrankenPHP) untuk Tukangsync
+#
+#   sudo systemctl enable --now tukangsync-octane
+#
+# Setelah deploy WAJIB `octane:reload` (deploy.sh sudah melakukannya).
+
+[Unit]
+Description=Tukangsync - Laravel Octane
+After=network.target postgresql.service redis-server.service
+Wants=postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/tukangsync/current
+
+# --workers 4: satu worker = satu koneksi PostgreSQL; aman untuk VPS kecil.
+# --max-requests: daur ulang worker sebagai pengaman kebocoran memori.
+ExecStart=/usr/bin/php artisan octane:start \
+    --server=frankenphp \
+    --host=127.0.0.1 \
+    --port=8010 \
+    --workers=4 \
+    --max-requests=500
+
+ExecReload=/usr/bin/php artisan octane:reload
+Restart=always
+RestartSec=3
+LimitNOFILE=65535
+
+StandardOutput=append:/var/log/tukangsync/octane.log
+StandardError=append:/var/log/tukangsync/octane.error.log
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/www/tukangsync/shared/storage /var/www/tukangsync/current/bootstrap/cache /var/log/tukangsync
+
+[Install]
+WantedBy=multi-user.target
