@@ -57,10 +57,9 @@ atau menjalankan uji yang merusak/membebani server.
 - Hapus tim, tangguhkan tim, ubah peran: tombol dengan konfirmasi, hanya
   Superadmin/pengelola, tercatat di log aktivitas & log keamanan.
 - Tim wajib punya minimal satu owner/kontraktor aktif (`KelolaAnggota`).
-- **Temuan (belum diubah):** perintah `kegiatan:bersihkan`
-  (`BersihkanKegiatan`, warisan o-api) melakukan `TRUNCATE` tabel kegiatan
-  untuk SEMUA tim. Hanya bisa dijalankan dari server, tetapi jangan pernah
-  dijalankan di produksi multi-tenant; perlu diubah menjadi per tim.
+- **Temuan (sudah diperbaiki):** perintah `kegiatan:bersihkan` warisan o-api
+  dulu melakukan `TRUNCATE` untuk SEMUA tim. Sekarang wajib menyebut kode tim
+  (`php artisan kegiatan:bersihkan KODE`) dan hanya menghapus proyek tim itu.
 
 ### A05 — Security Misconfiguration
 - Header keamanan global (`App\Http\Middleware\SecurityHeaders`): CSP
