@@ -23,7 +23,6 @@ use PHPUnit\Framework\Attributes\Test;
  */
 class MasterDataOtomatisTest extends ApiTestCase
 {
-
     private function simpanItem(array $data = []): TestResponse
     {
         $kegiatan = Kegiatan::factory()->create();

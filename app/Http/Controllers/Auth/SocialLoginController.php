@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Support\ActivityRecorder;
 use App\Models\Setting;
 use App\Models\User;
+use App\Support\ActivityRecorder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use Jenssegers\Agent\Agent;
+use Spatie\Permission\Models\Role;
 
 class SocialLoginController extends Controller
 {
@@ -23,8 +23,8 @@ class SocialLoginController extends Controller
         $providerKey = $this->normalizeProvider($provider);
 
         // Check if provider is enabled
-        if (!Setting::get("social_{$providerKey}_enabled")) {
-            return redirect()->route('login')->with('error', 'Login dengan ' . ucfirst($providerKey) . ' tidak diaktifkan.');
+        if (! Setting::get("social_{$providerKey}_enabled")) {
+            return redirect()->route('login')->with('error', 'Login dengan '.ucfirst($providerKey).' tidak diaktifkan.');
         }
 
         // Set config dynamically from DB
@@ -41,8 +41,8 @@ class SocialLoginController extends Controller
         $providerKey = $this->normalizeProvider($provider);
 
         // Check if provider is enabled
-        if (!Setting::get("social_{$providerKey}_enabled")) {
-            return redirect()->route('login')->with('error', 'Login dengan ' . ucfirst($providerKey) . ' tidak diaktifkan.');
+        if (! Setting::get("social_{$providerKey}_enabled")) {
+            return redirect()->route('login')->with('error', 'Login dengan '.ucfirst($providerKey).' tidak diaktifkan.');
         }
 
         // Set config dynamically from DB
@@ -51,7 +51,7 @@ class SocialLoginController extends Controller
         try {
             $socialUser = Socialite::driver($provider)->user();
         } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Gagal autentikasi dengan ' . ucfirst($providerKey) . '. Silakan coba lagi.');
+            return redirect()->route('login')->with('error', 'Gagal autentikasi dengan '.ucfirst($providerKey).'. Silakan coba lagi.');
         }
 
         // Find existing user by email or social_id
@@ -88,7 +88,7 @@ class SocialLoginController extends Controller
             // Assign default role
             if (method_exists($user, 'assignRole')) {
                 // Assign first available role or 'user' role
-                $defaultRole = \Spatie\Permission\Models\Role::first();
+                $defaultRole = Role::first();
                 if ($defaultRole) {
                     $user->assignRole($defaultRole);
                 }
@@ -104,7 +104,7 @@ class SocialLoginController extends Controller
         Auth::login($user, true);
         request()->session()->regenerate();
 
-        ActivityRecorder::loggedIn('Login via ' . ucfirst($providerKey));
+        ActivityRecorder::loggedIn('Login via '.ucfirst($providerKey));
 
         return redirect()->intended(route('dashboard'));
     }
@@ -146,7 +146,7 @@ class SocialLoginController extends Controller
         $counter = 1;
 
         while (User::where('username', $username)->exists()) {
-            $username = Str::slug($base) . $counter;
+            $username = Str::slug($base).$counter;
             $counter++;
         }
 

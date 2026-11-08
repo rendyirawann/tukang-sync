@@ -6,6 +6,7 @@ use App\Models\Plan;
 use App\Models\Team;
 use App\Models\User;
 use App\Support\AntiSpam;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\RateLimiter;
 use Tests\Feature\Tim\TimTestCase;
@@ -162,7 +163,7 @@ class SecurityTest extends TimTestCase
 
         $this->actingAs($lain)
             ->post("/admin/my-account/{$admin->id}/update-avatar", [
-                'avatar' => \Illuminate\Http\UploadedFile::fake()->image('a.png'),
+                'avatar' => UploadedFile::fake()->image('a.png'),
             ]);
 
         $this->assertNull($admin->fresh()->avatar);

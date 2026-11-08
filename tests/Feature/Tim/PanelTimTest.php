@@ -6,6 +6,7 @@ use App\Enums\Peran;
 use App\Models\Analisa;
 use App\Models\Kegiatan;
 use App\Models\Pekerjaan;
+use App\Models\Plan;
 use App\Support\Tenancy\TimAktif;
 
 class PanelTimTest extends TimTestCase
@@ -159,7 +160,7 @@ class PanelTimTest extends TimTestCase
         $this->post($this->url('anggota'), ['name' => 'D', 'email' => 'd@demo.test', 'peran' => 'viewer', 'password' => 'password123'])->assertSessionHas('success');
         $this->post($this->url('anggota'), ['name' => 'E', 'email' => 'e@demo.test', 'peran' => 'anggota', 'password' => 'password123'])->assertSessionHasErrors('email');
 
-        $plan = \App\Models\Plan::where('kode', 'bulanan')->first();
+        $plan = Plan::where('kode', 'bulanan')->first();
         $res = $this->post($this->url('langganan'), ['plan_id' => $plan->id]);
         $this->assertStringStartsWith('https://wa.me/', $res->headers->get('Location'));
         $this->assertDatabaseHas('team_payments', ['team_id' => $this->demo->id, 'jenis' => 'perpanjangan', 'status' => 'menunggu']);

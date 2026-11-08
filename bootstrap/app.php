@@ -1,10 +1,18 @@
 <?php
 
+use App\Http\Middleware\BlockSuspiciousRequests;
 use App\Http\Middleware\CatatAktivitas;
+use App\Http\Middleware\CheckMaintenanceMode;
+use App\Http\Middleware\ResetTimAktif;
+use App\Http\Middleware\RobotsTag;
+use App\Http\Middleware\SanitizeInput;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TimApi;
 use App\Http\Middleware\TimWeb;
 use App\Http\Middleware\WajibPlatformAdmin;
 use App\Support\ApiResponse;
+use App\Support\PesanGalat;
+use Cog\Laravel\Ban\Http\Middleware\ForbidBannedUser;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,7 +21,12 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -30,10 +43,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
 
         $middleware->alias([
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-            'forbid-banned-user' => \Cog\Laravel\Ban\Http\Middleware\ForbidBannedUser::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'forbid-banned-user' => ForbidBannedUser::class,
 
             // SaaS
             'platform' => WajibPlatformAdmin::class,
@@ -44,21 +57,21 @@ return Application::configure(basePath: dirname(__DIR__))
         // Runs on every request, including assets served through PHP:
         // header hardening first, then the URL-signature guard.
         $middleware->prepend([
-            \App\Http\Middleware\ResetTimAktif::class,
-            \App\Http\Middleware\SecurityHeaders::class,
-            \App\Http\Middleware\RobotsTag::class,
-            \App\Http\Middleware\BlockSuspiciousRequests::class,
+            ResetTimAktif::class,
+            SecurityHeaders::class,
+            RobotsTag::class,
+            BlockSuspiciousRequests::class,
         ]);
 
         $middleware->web(append: [
-            \Illuminate\Session\Middleware\AuthenticateSession::class,
-            \App\Http\Middleware\SanitizeInput::class,
-            \App\Http\Middleware\CheckMaintenanceMode::class,
+            AuthenticateSession::class,
+            SanitizeInput::class,
+            CheckMaintenanceMode::class,
             'throttle:web',
         ]);
 
         $middleware->api(prepend: [
-            \App\Http\Middleware\SanitizeInput::class,
+            SanitizeInput::class,
         ]);
 
         $middleware->appendToGroup('api', 'throttle:api');
@@ -232,7 +245,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 $e instanceof AuthenticationException => 401,
                 $e instanceof AuthorizationException => 403,
                 $e instanceof ModelNotFoundException => 404,
-                $e instanceof \Illuminate\Session\TokenMismatchException => 419,
+                $e instanceof TokenMismatchException => 419,
                 $e instanceof HttpExceptionInterface => $e->getStatusCode(),
                 default => 500,
             };
@@ -243,13 +256,13 @@ return Application::configure(basePath: dirname(__DIR__))
 
             $pesan = match ($status) {
                 401 => 'Sesi Anda sudah berakhir. Silakan masuk kembali.',
-                403 => \App\Support\PesanGalat::untuk($e, 'Anda tidak memiliki akses untuk tindakan ini.'),
+                403 => PesanGalat::untuk($e, 'Anda tidak memiliki akses untuk tindakan ini.'),
                 404 => 'Data atau halaman tidak ditemukan.',
                 419 => 'Sesi kedaluwarsa, silakan muat ulang halaman.',
                 429 => 'Terlalu banyak permintaan. Silakan tunggu sebentar.',
                 default => $status >= 500
                     ? 'Terjadi kesalahan pada server. Silakan coba lagi.'
-                    : \App\Support\PesanGalat::untuk($e, 'Permintaan tidak dapat diproses.'),
+                    : PesanGalat::untuk($e, 'Permintaan tidak dapat diproses.'),
             };
 
             $headers = $e instanceof HttpExceptionInterface ? $e->getHeaders() : [];

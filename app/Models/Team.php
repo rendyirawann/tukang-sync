@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Enums\Peran;
 use App\Enums\StatusTim;
+use Database\Factories\TeamFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,8 +16,8 @@ use Illuminate\Support\Carbon;
 
 class Team extends Model
 {
-    /** @use \Illuminate\Database\Eloquent\Factories\HasFactory<\Database\Factories\TeamFactory> */
-    use \Illuminate\Database\Eloquent\Factories\HasFactory, SoftDeletes;
+    /** @use HasFactory<TeamFactory> */
+    use HasFactory, SoftDeletes;
 
     /**
      * Huruf untuk kode tim. Tanpa 0/O dan 1/I/L supaya kode yang dibacakan

@@ -126,7 +126,7 @@ class SettingController extends Controller
 
         ActivityRecorder::log(
             'pengaturan aplikasi',
-            'Membuat ulang logo & favicon dari nama aplikasi "' . $name . '"',
+            'Membuat ulang logo & favicon dari nama aplikasi "'.$name.'"',
             ['new' => $assets],
         );
 
@@ -152,11 +152,11 @@ class SettingController extends Controller
             mkdir($directory, 0755, true);
         }
 
-        $filename = $prefix . '-' . time() . '.' . Str::lower($file->getClientOriginalExtension());
+        $filename = $prefix.'-'.time().'.'.Str::lower($file->getClientOriginalExtension());
         $file->move($directory, $filename);
 
         $previous = Setting::get($key);
-        Setting::set($key, BrandingService::DIR . '/' . $filename);
+        Setting::set($key, BrandingService::DIR.'/'.$filename);
 
         $this->deleteReplaced($previous, $filename);
     }
@@ -172,10 +172,10 @@ class SettingController extends Controller
         }
 
         $protected = [
-            BrandingService::DIR . '/logo-mark.svg',
-            BrandingService::DIR . '/logo-full.svg',
-            BrandingService::DIR . '/favicon.ico',
-            BrandingService::DIR . '/og-image.png',
+            BrandingService::DIR.'/logo-mark.svg',
+            BrandingService::DIR.'/logo-full.svg',
+            BrandingService::DIR.'/favicon.ico',
+            BrandingService::DIR.'/og-image.png',
         ];
 
         if (in_array($previous, $protected, true) || str_ends_with($previous, $justUploaded)) {

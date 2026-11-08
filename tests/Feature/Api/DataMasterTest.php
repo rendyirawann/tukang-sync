@@ -18,7 +18,6 @@ use PHPUnit\Framework\Attributes\Test;
  */
 class DataMasterTest extends ApiTestCase
 {
-
     private function superadmin(): User
     {
         return User::factory()->create(['peran' => 'owner', 'is_active' => true]);

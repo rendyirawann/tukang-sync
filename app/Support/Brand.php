@@ -105,7 +105,7 @@ class Brand
                 return $value;
             }
 
-            $path = str_contains($value, '/') ? ltrim($value, '/') : 'assets/media/logos/' . $value;
+            $path = str_contains($value, '/') ? ltrim($value, '/') : 'assets/media/logos/'.$value;
 
             if (is_file(public_path($path))) {
                 return self::versioned($path);

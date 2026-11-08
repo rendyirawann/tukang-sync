@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\SecurityLog;
 use Closure;
 use Illuminate\Http\Request;
-use App\Support\SecurityLog;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

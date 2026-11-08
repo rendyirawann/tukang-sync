@@ -15,7 +15,6 @@ use PHPUnit\Framework\Attributes\Test;
  */
 class AuthTest extends ApiTestCase
 {
-
     private function user(array $override = []): User
     {
         return User::factory()->create(array_replace([

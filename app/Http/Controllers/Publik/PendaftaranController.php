@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BankAccount;
 use App\Models\Plan;
 use App\Services\Saas\PenyediaTim;
+use App\Support\AntiSpam;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -39,7 +40,7 @@ class PendaftaranController extends Controller
     {
         // Honeypot + time-trap (+ Turnstile bila aktif): bot dialihkan
         // diam-diam ke beranda tanpa membuat tim.
-        if (! \App\Support\AntiSpam::lolos($request)) {
+        if (! AntiSpam::lolos($request)) {
             return redirect()->route('beranda');
         }
 

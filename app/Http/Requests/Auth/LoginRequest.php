@@ -6,8 +6,8 @@ use App\Support\AntiSpam;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Cache; // Wajib import Cache
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter; // Wajib import Cache
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -37,7 +37,7 @@ class LoginRequest extends FormRequest
      */
     /**
      * @param  int|null  $teamId  null = login panel /admin (hanya akun platform);
-     *                         terisi = login /{slug}/login (hanya anggota tim itu).
+     *                            terisi = login /{slug}/login (hanya anggota tim itu).
      */
     public function authenticate(?int $teamId = null): void
     {
@@ -49,7 +49,7 @@ class LoginRequest extends FormRequest
 
         // 1. Tentukan Key untuk Rate Limiter & Counter Gagal
         $throttleKey = $this->throttleKey();
-        $failCounterKey = $throttleKey . ':fails'; // Key khusus untuk simpan jumlah gagal hari ini
+        $failCounterKey = $throttleKey.':fails'; // Key khusus untuk simpan jumlah gagal hari ini
 
         // 2. CEK DULU: Apakah user sedang dalam masa hukuman (Lockout)?
         if (RateLimiter::tooManyAttempts($throttleKey, 1)) {
@@ -130,6 +130,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
     }
 }

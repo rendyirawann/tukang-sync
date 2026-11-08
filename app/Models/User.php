@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Peran;
 use Cog\Contracts\Ban\Bannable as BannableContract;
 use Cog\Laravel\Ban\Traits\Bannable;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,7 +33,7 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable implements BannableContract
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use Bannable, HasApiTokens, HasFactory, HasRoles, HasUuids, Notifiable;
 
     protected $fillable = [

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\JenisMaster;
+use App\Models\Concerns\MilikTim;
 use App\Support\MasterDataOtomatis;
 use Database\Factories\BahanBakuItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Concerns\MilikTim;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;

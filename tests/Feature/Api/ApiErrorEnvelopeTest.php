@@ -19,7 +19,6 @@ use PHPUnit\Framework\Attributes\Test;
  */
 class ApiErrorEnvelopeTest extends ApiTestCase
 {
-
     #[Test]
     public function tamu_tanpa_header_json_tetap_dijawab_401_bukan_500(): void
     {

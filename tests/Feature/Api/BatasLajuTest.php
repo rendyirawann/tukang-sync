@@ -27,7 +27,6 @@ use PHPUnit\Framework\Attributes\Test;
  */
 class BatasLajuTest extends ApiTestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();

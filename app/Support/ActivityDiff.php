@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Activity;
 
@@ -118,7 +119,7 @@ class ActivityDiff
             return $event;
         }
 
-        $name = Str::lower((string) $activity->log_name . ' ' . (string) $activity->description);
+        $name = Str::lower((string) $activity->log_name.' '.(string) $activity->description);
 
         return match (true) {
             str_contains($name, 'logout') => 'logout',
@@ -181,7 +182,7 @@ class ActivityDiff
     /** @return array<string,mixed> */
     private static function toArray(mixed $value): array
     {
-        if ($value instanceof \Illuminate\Support\Collection) {
+        if ($value instanceof Collection) {
             $value = $value->all();
         }
 

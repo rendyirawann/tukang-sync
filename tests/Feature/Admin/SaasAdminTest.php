@@ -6,6 +6,7 @@ use App\Enums\StatusPembayaran;
 use App\Enums\StatusTim;
 use App\Models\Plan;
 use App\Models\Team;
+use App\Models\TeamPayment;
 use App\Models\User;
 use App\Services\Saas\PenyediaTim;
 use Database\Seeders\RolePermissionSeeder;
@@ -31,7 +32,7 @@ class SaasAdminTest extends TestCase
         $this->admin = User::whereNull('team_id')->firstOrFail();
     }
 
-    private function timPending(string $email = 'pending@x.test'): \App\Models\TeamPayment
+    private function timPending(string $email = 'pending@x.test'): TeamPayment
     {
         return app(PenyediaTim::class)->daftar([
             'nama_tim' => 'Tim Uji', 'nama' => 'Pemilik', 'email' => $email,

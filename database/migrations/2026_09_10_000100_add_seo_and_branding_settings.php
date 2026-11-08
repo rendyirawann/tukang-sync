@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 return new class extends Migration
 {
@@ -14,10 +15,10 @@ return new class extends Migration
         $appName = config('app.name', 'Tukangsync');
 
         return [
-            'site_short_name' => \Illuminate\Support\Str::limit($appName, 12, ''),
+            'site_short_name' => Str::limit($appName, 12, ''),
             'site_tagline' => 'RAB & proyek, sinkron satu tim',
             'site_description' => (string) config('app.description'),
-            'site_keywords' => strtolower($appName) . ', admin panel, dashboard, manajemen pengguna, laravel',
+            'site_keywords' => strtolower($appName).', admin panel, dashboard, manajemen pengguna, laravel',
             'site_author' => 'Rendy Irawan',
             'site_favicon' => 'assets/media/branding/favicon.ico',
             'site_og_image' => 'assets/media/branding/og-image.png',

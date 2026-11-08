@@ -2,12 +2,16 @@
 
 namespace Database\Factories;
 
+use App\Enums\Peran;
+use App\Models\Team;
+use App\Models\User;
+use App\Support\Tenancy\TimAktif;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -16,11 +20,11 @@ class UserFactory extends Factory
      *
      *   User::factory()->forTeam($tim, 'mandor')->create()
      */
-    public function forTeam(?\App\Models\Team $team = null, string|\App\Enums\Peran $peran = 'owner'): static
+    public function forTeam(?Team $team = null, string|Peran $peran = 'owner'): static
     {
         return $this->state(fn () => [
-            'team_id' => $team?->id ?? \App\Models\Team::factory(),
-            'peran' => $peran instanceof \App\Enums\Peran ? $peran->value : $peran,
+            'team_id' => $team?->id ?? Team::factory(),
+            'peran' => $peran instanceof Peran ? $peran->value : $peran,
             'is_active' => true,
         ]);
     }
@@ -44,7 +48,7 @@ class UserFactory extends Factory
     {
         return [
             // Mengikuti tim aktif (test API); tanpa tim aktif = akun platform.
-            'team_id' => fn () => \App\Support\Tenancy\TimAktif::get()?->id,
+            'team_id' => fn () => TimAktif::get()?->id,
             'peran' => fn (array $a) => $a['team_id'] ? 'anggota' : null,
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),

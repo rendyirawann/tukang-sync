@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Backend\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Team;
+use App\Models\TeamPayment;
 use App\Models\User;
 use App\Support\ActivityDiff;
 use Carbon\CarbonPeriod;
@@ -37,11 +39,11 @@ class DashboardAdminController extends Controller
     private function saas(): array
     {
         return [
-            'aktif' => \App\Models\Team::where('status', 'aktif')->count(),
-            'menunggu' => \App\Models\TeamPayment::where('status', 'menunggu')->count(),
-            'habis' => \App\Models\Team::where('status', 'aktif')->where('lifetime', false)
+            'aktif' => Team::where('status', 'aktif')->count(),
+            'menunggu' => TeamPayment::where('status', 'menunggu')->count(),
+            'habis' => Team::where('status', 'aktif')->where('lifetime', false)
                 ->where('aktif_sampai', '<', now())->count(),
-            'pendapatan' => (int) \App\Models\TeamPayment::where('status', 'diterima')
+            'pendapatan' => (int) TeamPayment::where('status', 'diterima')
                 ->where('dikonfirmasi_pada', '>=', now()->startOfMonth())->sum('nominal'),
         ];
     }

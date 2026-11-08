@@ -63,7 +63,7 @@ class ProyekController extends TimController
         return redirect()->route('tim.proyek.show', [$this->tim()->slug, $proyek])->with('success', 'Proyek dibuat. Mulai susun RAB-nya di tab Struktur & RAB.');
     }
 
-    public function show(Request $request, $tim,Kegiatan $kegiatan, RabCalculator $rab): View
+    public function show(Request $request, $tim, Kegiatan $kegiatan, RabCalculator $rab): View
     {
         $tab = (string) $request->query('tab', 'ringkasan');
 
@@ -88,14 +88,14 @@ class ProyekController extends TimController
         ]);
     }
 
-    public function edit($tim,Kegiatan $kegiatan): View
+    public function edit($tim, Kegiatan $kegiatan): View
     {
         $this->izin(Izin::kelolaKegiatan(request()->user()));
 
         return view('tim.proyek.form', ['tim' => $this->tim(), 'proyek' => $kegiatan]);
     }
 
-    public function update(Request $request, $tim,Kegiatan $kegiatan): RedirectResponse
+    public function update(Request $request, $tim, Kegiatan $kegiatan): RedirectResponse
     {
         $this->izin(Izin::kelolaKegiatan($request->user()));
 
@@ -107,7 +107,7 @@ class ProyekController extends TimController
         return redirect()->route('tim.proyek.show', [$this->tim()->slug, $kegiatan])->with('success', 'Proyek diperbarui.');
     }
 
-    public function destroy(Request $request, $tim,Kegiatan $kegiatan): RedirectResponse
+    public function destroy(Request $request, $tim, Kegiatan $kegiatan): RedirectResponse
     {
         $this->izin(Izin::kelolaKegiatan($request->user()));
         $kegiatan->delete();

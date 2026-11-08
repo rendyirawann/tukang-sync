@@ -2,24 +2,21 @@
 
 namespace App\Http\Controllers\Backend\UserManagement;
 
-use App\Support\ActivityRecorder;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use DB;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
+use App\Support\ActivityRecorder;
 use Carbon\Carbon;
-use Auth;
-use Jenssegers\Agent\Agent;
-
-// FIX: Tambahkan ini untuk DataTables
-use Yajra\DataTables\Facades\DataTables;
-
-// FIX: Tambahkan interface HasMiddleware dan class Middleware untuk Laravel 12
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+// FIX: Tambahkan ini untuk DataTables
+use Illuminate\Support\Facades\Artisan;
+// FIX: Tambahkan interface HasMiddleware dan class Middleware untuk Laravel 12
+use Illuminate\View\View;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Yajra\DataTables\Facades\DataTables;
 
 class RoleController extends Controller implements HasMiddleware
 {
@@ -47,16 +44,16 @@ class RoleController extends Controller implements HasMiddleware
     {
         try {
             // Jalankan command
-            \Illuminate\Support\Facades\Artisan::call('permission:generate');
+            Artisan::call('permission:generate');
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Permissions berhasil digenerate ulang berdasarkan Route!'
+                'message' => 'Permissions berhasil digenerate ulang berdasarkan Route!',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Gagal generate: ' . $e->getMessage()
+                'message' => 'Gagal generate: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -64,7 +61,7 @@ class RoleController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(Request $request): View
     {
@@ -78,7 +75,7 @@ class RoleController extends Controller implements HasMiddleware
         // $postsQuery = Role::where('id','!=','1')->orderBy('id', 'desc');
         $postsQuery = Role::orderBy('id', 'desc');
 
-        if (!empty($request->search['value'])) {
+        if (! empty($request->search['value'])) {
             $searchValue = $request->search['value'];
             $postsQuery->where(function ($query) use ($searchValue) {
                 $query->where('name', 'LIKE', "%{$searchValue}%");
@@ -99,13 +96,13 @@ class RoleController extends Controller implements HasMiddleware
 
                 // Tombol Detail
                 // Tombol Detail (Pakai class 'btn-detail' dan data-id, href jadi javascript:void(0))
-                $x .= '<li><a class="dropdown-item btn px-3 btn-detail" href="javascript:void(0)" data-id="' . $data->id . '">Detail</a></li>';
+                $x .= '<li><a class="dropdown-item btn px-3 btn-detail" href="javascript:void(0)" data-id="'.$data->id.'">Detail</a></li>';
 
                 // Tombol Edit
-                $x .= '<li><a class="dropdown-item btn px-3" id="getEditRowData" data-id="' . $data->id . '" >Edit</a></li>';
+                $x .= '<li><a class="dropdown-item btn px-3" id="getEditRowData" data-id="'.$data->id.'" >Edit</a></li>';
 
                 // Tombol Hapus
-                $x .= '<li><a class="dropdown-item btn px-3" data-id="' . $data->id . '" data-bs-toggle="modal" data-bs-target="#Modal_Hapus_Data" id="getDeleteId">Hapus</a></li>';
+                $x .= '<li><a class="dropdown-item btn px-3" data-id="'.$data->id.'" data-bs-toggle="modal" data-bs-target="#Modal_Hapus_Data" id="getDeleteId">Hapus</a></li>';
 
                 $x .= '</ul></div>';
 
@@ -113,28 +110,30 @@ class RoleController extends Controller implements HasMiddleware
             })
 
             ->editColumn('name', function ($data) {
-                return '<label class="badge badge-primary">' . $data->name . '</label>';
+                return '<label class="badge badge-primary">'.$data->name.'</label>';
             })
 
             ->editColumn('guard_name', function ($data) {
-                return '<label class="badge badge-primary">' . $data->guard_name . '</label>';
+                return '<label class="badge badge-primary">'.$data->guard_name.'</label>';
             })
 
             ->addColumn('created_at', function ($row) {
                 if ($row->created_at) {
-                    return '<div class="badge badge-light fw-bold">' .
-                        Carbon::parse($row->created_at)->locale('id')->translatedFormat('d F Y, H:i') .
+                    return '<div class="badge badge-light fw-bold">'.
+                        Carbon::parse($row->created_at)->locale('id')->translatedFormat('d F Y, H:i').
                         '</div>';
                 }
+
                 return '<div class="badge badge-light fw-bold">N/A</div>';
             })
 
             ->addColumn('updated_at', function ($row) {
                 if ($row->updated_at) {
-                    return '<div class="badge badge-light fw-bold">' .
-                        Carbon::parse($row->updated_at)->locale('id')->translatedFormat('d F Y, H:i') .
+                    return '<div class="badge badge-light fw-bold">'.
+                        Carbon::parse($row->updated_at)->locale('id')->translatedFormat('d F Y, H:i').
                         '</div>';
                 }
+
                 return '<div class="badge badge-light fw-bold">N/A</div>';
             })
 
@@ -142,12 +141,10 @@ class RoleController extends Controller implements HasMiddleware
             ->make(true);
     }
 
-
-
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function store(Request $request)
     {
@@ -161,48 +158,43 @@ class RoleController extends Controller implements HasMiddleware
             'permission.required' => 'Permission wajib diisi',
         ]);
 
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()]);
         }
         // Logika penyimpanan data
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $role = Role::create(['name' => $request->input('name')]);
             $role->permissions()->sync($request->input('permission'));
-
-
-
 
             // ===============================
             // FULL NEW SNAPSHOT
             // ===============================
             $newData = $role->toArray();
 
-            ActivityRecorder::created('tambah role', 'Membuat role ' . $role->name, $newData);
+            ActivityRecorder::created('tambah role', 'Membuat role '.$role->name, $newData);
 
-
-            \DB::commit();
-
-
+            DB::commit();
 
             return response()->json([
-                'success' => ' Data ' . $role->name . ' berhasil disimpan.',
+                'success' => ' Data '.$role->name.' berhasil disimpan.',
                 'time' => $formattedTime,
-                'judul' => 'Berhasil'
+                'judul' => 'Berhasil',
             ]);
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
             $errorMessage = $e->getMessage(); // Mendapatkan pesan kesalahan dari Exception
+
             return response()->json(['error' => 'Terjadi kesalahan di aplikasi, hubungi Developer.', 'time' => $formattedTime, 'judul' => 'Aplikasi Error', 'errorMessage' => $errorMessage]);
         }
     }
+
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show(Request $request, $id)
     {
@@ -226,6 +218,7 @@ class RoleController extends Controller implements HasMiddleware
         // Jika Request AJAX (dari Modal), return JSON HTML
         if ($request->ajax()) {
             $html = view('backend.user_management.role.show', compact('role', 'rolePermissions', 'permissions'))->render();
+
             return response()->json(['html' => $html]);
         }
 
@@ -237,7 +230,7 @@ class RoleController extends Controller implements HasMiddleware
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit($id)
     {
@@ -248,7 +241,7 @@ class RoleController extends Controller implements HasMiddleware
             [
                 'role' => $role->findOrFail($id),
                 'permission' => Permission::orderBy('category', 'ASC')->get()->groupBy('category'),
-                'rolePermissions' => DB::table("role_has_permissions")->where("role_has_permissions.role_id", $id)
+                'rolePermissions' => DB::table('role_has_permissions')->where('role_has_permissions.role_id', $id)
                     ->pluck('role_has_permissions.permission_id', 'role_has_permissions.permission_id')
                     ->all(),
 
@@ -261,16 +254,15 @@ class RoleController extends Controller implements HasMiddleware
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update(Request $request, $id)
     {
         $formattedTime = Carbon::now()->diffForHumans();
 
         $validator = \Validator::make($request->all(), [
-            'name' => 'required|unique:roles,name,' . $id,
+            'name' => 'required|unique:roles,name,'.$id,
             'permission' => 'required|array',
             'permission.*' => 'exists:permissions,id',
         ], [
@@ -285,7 +277,7 @@ class RoleController extends Controller implements HasMiddleware
         }
 
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             // Temukan role berdasarkan ID
             $role = Role::findOrFail($id);
@@ -294,7 +286,7 @@ class RoleController extends Controller implements HasMiddleware
             $role->name = $request->input('name');
 
             // --- FIX: PAKSA UPDATE TIMESTAMP ---
-            // Set updated_at ke waktu sekarang agar selalu berubah 
+            // Set updated_at ke waktu sekarang agar selalu berubah
             // (meskipun nama role tidak diganti)
             $role->updated_at = Carbon::now();
 
@@ -313,23 +305,24 @@ class RoleController extends Controller implements HasMiddleware
             // ===============================
             // No subject: the role's integer key does not fit the UUID-typed
             // subject column the rest of the app writes.
-            ActivityRecorder::updated('edit role', 'Mengubah role ' . $role->name, $oldData, $newData);
+            ActivityRecorder::updated('edit role', 'Mengubah role '.$role->name, $oldData, $newData);
 
-            \DB::commit();
+            DB::commit();
 
             return response()->json([
-                'success' => 'Data ' . $role->name . ' berhasil diperbaharui.',
+                'success' => 'Data '.$role->name.' berhasil diperbaharui.',
                 'time' => $formattedTime,
-                'judul' => 'Berhasil'
+                'judul' => 'Berhasil',
             ]);
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
             $errorMessage = $e->getMessage();
+
             return response()->json([
                 'error' => 'Terjadi kesalahan di aplikasi, hubungi Developer.',
                 'time' => $formattedTime,
                 'judul' => 'Aplikasi Error',
-                'errorMessage' => $errorMessage
+                'errorMessage' => $errorMessage,
             ]);
         }
     }
@@ -338,14 +331,13 @@ class RoleController extends Controller implements HasMiddleware
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-
     public function destroy(Request $request, $id)
     {
         $formattedTime = Carbon::now()->diffForHumans();
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             // Temukan role berdasarkan ID
             $role = Role::findOrFail($id);
@@ -357,18 +349,15 @@ class RoleController extends Controller implements HasMiddleware
             // ===============================
             // LOG ACTIVITY (AUDIT FULL)
             // ===============================
-            ActivityRecorder::deleted('hapus role', 'Menghapus role ' . $getData['name'], $getData);
+            ActivityRecorder::deleted('hapus role', 'Menghapus role '.$getData['name'], $getData);
 
+            DB::commit();
 
-
-
-
-            \DB::commit();
-
-            return response()->json(['success' => 'Data ' . $role->name . ' berhasil dihapus', 'time' => $formattedTime, 'judul' => 'Berhasil']);
+            return response()->json(['success' => 'Data '.$role->name.' berhasil dihapus', 'time' => $formattedTime, 'judul' => 'Berhasil']);
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
             $errorMessage = $e->getMessage(); // Mendapatkan pesan kesalahan dari Exception
+
             return response()->json(['error' => 'Data Gagal dihapus', 'time' => $formattedTime, 'judul' => 'Gagal', 'errorMessage' => $errorMessage]);
         }
     }
@@ -377,45 +366,45 @@ class RoleController extends Controller implements HasMiddleware
     {
         $formattedTime = Carbon::now()->diffForHumans();
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $ids = $request->ids;
 
-            if (!empty($ids)) {
+            if (! empty($ids)) {
                 // Dapatkan data pengguna yang akan dihapus untuk logging
                 $data = Role::whereIn('id', $ids)->get();
 
                 // Hapus pengguna
                 Role::whereIn('id', $ids)->delete();
 
-                \DB::commit();
+                DB::commit();
 
                 // One audit entry per deleted role, so each stays searchable.
                 foreach ($data as $role) {
                     ActivityRecorder::deleted(
                         'massdelete role',
-                        'Menghapus role ' . $role['name'],
+                        'Menghapus role '.$role['name'],
                         $role->toArray(),
                     );
                 }
 
                 return response()->json([
                     'status' => 'success',
-                    'message' => count($ids) . ' data deleted successfully!'
+                    'message' => count($ids).' data deleted successfully!',
                 ]);
             } else {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'No data selected for deletion.'
+                    'message' => 'No data selected for deletion.',
                 ]);
             }
         } catch (\Exception $e) {
-            \DB::rollback();
+            DB::rollback();
             $errorMessage = $e->getMessage(); // Mendapatkan pesan kesalahan dari Exception
+
             return response()->json(['error' => 'Data Gagal dihapus', 'time' => $formattedTime, 'judul' => 'Gagal', 'errorMessage' => $errorMessage]);
         }
     }
-
 
     public function select(Request $request)
     {
@@ -423,12 +412,13 @@ class RoleController extends Controller implements HasMiddleware
 
         if ($request->has('q')) {
             $search = $request->q;
-            $role = Role::select("id", "name")
+            $role = Role::select('id', 'name')
                 ->Where('name', 'LIKE', "%$search%")
                 ->get();
         } else {
             $role = Role::limit(30)->get();
         }
+
         return response()->json($role);
     }
 }

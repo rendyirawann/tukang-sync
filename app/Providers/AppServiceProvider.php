@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Setting;
 use App\Models\User;
 use App\Support\Brand;
 use App\Support\SecurityLog;
@@ -14,10 +15,10 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\Events\RequestHandled;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -166,12 +167,12 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('login', fn (Request $request) => [
             Limit::perMinute($limits['login'])
-                ->by(strtolower((string) $request->input('email')) . '|' . $request->ip()),
+                ->by(strtolower((string) $request->input('email')).'|'.$request->ip()),
             Limit::perMinute($limits['login'] * 4)->by($request->ip()),
         ]);
 
         RateLimiter::for('password', fn (Request $request) => Limit::perMinute($limits['password'])
-            ->by(strtolower((string) $request->input('email')) . '|' . $request->ip()));
+            ->by(strtolower((string) $request->input('email')).'|'.$request->ip()));
 
         // Pendaftaran tim publik: cukup longgar untuk salah ketik, cukup
         // ketat supaya tidak ada yang membanjiri daftar tim "menunggu".
@@ -198,7 +199,7 @@ class AppServiceProvider extends ServiceProvider
     private function legacySettings(): array
     {
         try {
-            return \App\Models\Setting::allCached();
+            return Setting::allCached();
         } catch (\Throwable) {
             return [];
         }

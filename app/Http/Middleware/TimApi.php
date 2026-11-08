@@ -9,6 +9,7 @@ use App\Support\Tenancy\PenjagaTim;
 use App\Support\Tenancy\TimAktif;
 use Closure;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -38,7 +39,7 @@ class TimApi
         if (! $user->is_active || $user->banned_at !== null) {
             $token = $user->currentAccessToken();
 
-            if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+            if ($token instanceof PersonalAccessToken) {
                 $token->delete();
             }
 

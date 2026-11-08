@@ -1,24 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-// Dashboard
 use App\Http\Controllers\Backend\Dashboard\DashboardAdminController;
-
+// Dashboard
+use App\Http\Controllers\Backend\Help\LogActivityController;
 // My profile
 use App\Http\Controllers\Backend\MyProfile\AccountController;
 use App\Http\Controllers\Backend\MyProfile\ActivityController;
 use App\Http\Controllers\Backend\MyProfile\LoginSessionController;
 use App\Http\Controllers\Backend\MyProfile\ProfileController;
 use App\Http\Controllers\Backend\MyProfile\SecurityController;
-
 // User management
-use App\Http\Controllers\Backend\UserManagement\RoleController;
-use App\Http\Controllers\Backend\UserManagement\UserController;
-
-// Help / system
-use App\Http\Controllers\Backend\Help\LogActivityController;
 use App\Http\Controllers\Backend\Settings\SettingController;
+use App\Http\Controllers\Backend\UserManagement\RoleController;
+// Help / system
+use App\Http\Controllers\Backend\UserManagement\UserController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,7 +106,7 @@ Route::middleware(['auth', 'forbid-banned-user', 'platform'])->group(function ()
     });
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 // Pendaftaran publik lalu panel tim. HARUS paling akhir: rute /{tim} akan
 // menangkap path satu segmen apa pun yang belum didaftarkan di atas.

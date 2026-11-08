@@ -20,7 +20,6 @@ use PHPUnit\Framework\Attributes\Test;
  */
 class UpahHutangTest extends ApiTestCase
 {
-
     private function petugas(): User
     {
         return User::factory()->create(['peran' => 'anggota', 'is_active' => true]);

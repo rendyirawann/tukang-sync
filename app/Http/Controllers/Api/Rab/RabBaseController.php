@@ -6,8 +6,8 @@ namespace App\Http\Controllers\Api\Rab;
 
 use App\Http\Controllers\Controller;
 use App\Support\ApiResponse;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 abstract class RabBaseController extends Controller

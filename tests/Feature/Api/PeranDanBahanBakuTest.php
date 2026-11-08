@@ -9,6 +9,7 @@ use App\Models\BahanBakuItem;
 use App\Models\Kegiatan;
 use App\Models\Lampiran;
 use App\Models\User;
+use App\Support\Tenancy\TimAktif;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
@@ -21,7 +22,6 @@ use PHPUnit\Framework\Attributes\Test;
  */
 class PeranDanBahanBakuTest extends ApiTestCase
 {
-
     private function superadmin(): User
     {
         return User::factory()->create([
@@ -332,10 +332,10 @@ class PeranDanBahanBakuTest extends ApiTestCase
     public function akun_platform_dan_tim_lain_tidak_terlihat_lewat_endpoint_pengguna(): void
     {
         $super = $this->superadmin();
-        \App\Support\Tenancy\TimAktif::reset();
+        TimAktif::reset();
         $platform = User::factory()->create();
         $timLain = User::factory()->forTeam(null, 'anggota')->create();
-        \App\Support\Tenancy\TimAktif::set($this->tim);
+        TimAktif::set($this->tim);
 
         $this->actingAs($super)->getJson("/api/pengguna/{$platform->id}")->assertNotFound();
         $this->actingAs($super)->putJson("/api/pengguna/{$timLain->id}", ['name' => 'X'])->assertNotFound();
