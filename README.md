@@ -1,59 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tukangsync
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi SaaS catatan proyek konstruksi untuk tim: RAB per bangunan, lantai
+dan ruangan, kebutuhan material otomatis, progres, log harian, belanja, arus
+kas, dan bagi hasil. Web dan Android tersinkron dalam satu tim.
 
-## About Laravel
+## Fitur utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Langganan per tim**: paket Bulanan (Rp49.000) dan Lifetime (Rp99.000),
+  maksimal 4 akun per tim (owner, kontraktor, mandor, anggota, viewer).
+- **Pendaftaran publik** di `/daftar` → kode tim unik 4 karakter →
+  konfirmasi transfer via WhatsApp → superadmin ACC dengan bukti tempel (Ctrl+V)
+  atau unggah PNG/JPG/PDF.
+- **Panel superadmin** `/admin`: tim, pembayaran, paket, rekening tujuan,
+  kontak WhatsApp, akun anggota tiap tim, pengguna & peran platform, log aktivitas.
+- **Panel tim** `/{KODE}`: proyek, struktur bangunan › lantai › ruangan, item
+  pekerjaan dengan volume otomatis (unit/m'/m²/m³), analisa harga satuan (AHSP),
+  rekap kebutuhan material vs realisasi, log harian, belanja, katalog harga,
+  anggota, langganan.
+- **API** untuk aplikasi Android (Sanctum) dengan Swagger di `/api/documentation`.
+- Masa langganan habis → data tetap bisa dibaca, tidak bisa diubah.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Bagian | Teknologi |
+|---|---|
+| Backend | PHP 8.2+ (server: 8.3), Laravel 12, PostgreSQL 15+, Redis |
+| Auth | Session (web), Laravel Sanctum (API), spatie/laravel-permission (superadmin) |
+| UI web | Blade + tema Metronic (`public/assets`), jQuery, DataTables |
+| Dokumen | barryvdh/laravel-dompdf (PDF), darkaonline/l5-swagger (OpenAPI) |
+| Server | Laravel Octane (FrankenPHP) di belakang nginx |
+| Mobile | Flutter (folder terpisah `../o-saas-mobile`) |
 
-## Learning Laravel
+## Kebutuhan sistem (lokal)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP 8.2+ dengan ekstensi pgsql, mbstring, intl, gd, zip, fileinfo
+- Composer 2
+- PostgreSQL (lokal memakai port 5433)
+- Node.js hanya bila mengubah `resources/js` (tampilan memakai aset jadi di `public/assets`)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalasi
 
-## Laravel Sponsors
+```bash
+composer install
+cp .env.example .env            # lalu isi DB_* sesuai PostgreSQL lokal
+php artisan key:generate
+php artisan migrate --seed      # termasuk tim contoh DEMO di lingkungan non-produksi
+php artisan storage:link
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Menjalankan
 
-### Premium Partners
+```bash
+php artisan serve --port=8010   # atau klik dua kali ../start-dev-saas.bat
+php artisan queue:work          # bila QUEUE_CONNECTION bukan sync
+php artisan schedule:work       # penjadwal (pembersihan pendaftaran tak dibayar)
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+| Alamat | Akun contoh |
+|---|---|
+| http://127.0.0.1:8010/admin/login | superadmin dari `database/seeders/SuperAdminSeeder.php` |
+| http://127.0.0.1:8010/DEMO/login | `owner@demo.test` / `password123`, `mandor@demo.test` / `password123` |
+| http://127.0.0.1:8010/api/documentation | Swagger |
 
-## Contributing
+## Konfigurasi `.env` penting
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Kunci | Keterangan |
+|---|---|
+| `APP_NAME`, `APP_DESCRIPTION` | identitas & SEO |
+| `DB_*` | PostgreSQL (`tukangsync`) |
+| `SANCTUM_TOKEN_TTL` | umur token API (menit) |
+| `L5_SWAGGER_CONST_HOST` | URL dasar di Swagger |
+| `SECURITY_*`, `RATE_LIMIT_*`, `TRUSTED_PROXIES` | header keamanan & pembatas laju |
 
-## Code of Conduct
+## Testing
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan test                      # PostgreSQL, database o_saas_test (phpunit.xml)
+DB_DATABASE=nama_lain php artisan test # pakai database tes lain
+```
 
-## Security Vulnerabilities
+## Struktur folder
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+app/
+  Enums/                    Peran, StatusTim, KategoriPekerjaan, SatuanVolume, …
+  Http/Controllers/Api/     API mobile (+ Rab/)
+  Http/Controllers/Backend/ panel superadmin (Saas/ untuk langganan)
+  Http/Controllers/Tim/     panel web tim
+  Http/Controllers/Publik/  beranda & pendaftaran
+  Http/Middleware/          TimWeb, TimApi, WajibPlatformAdmin, SecurityHeaders, …
+  Models/Concerns/MilikTim.php   global scope per tim
+  Services/Rab/RabCalculator.php hitung volume, kebutuhan, ringkasan
+  Services/Saas/            PenyediaTim, KelolaAnggota, KatalogAwal
+  Support/Izin.php          aturan hak akses per peran
+  Support/Tenancy/          TimAktif, PenjagaTim
+routes/  web.php, admin_saas.php, publik.php, tim.php, tim_panel.php, api.php
+deploy/  skrip server
+docs/    dokumentasi
+```
 
-## License
+## Dokumentasi
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): alur request & modul
+- [docs/DATABASE.md](docs/DATABASE.md): tabel & ERD
+- [docs/API.md](docs/API.md) dan [docs/API-RAB.md](docs/API-RAB.md): API
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): deploy ke server
+- [docs/CHANGELOG.md](docs/CHANGELOG.md)
+- `docs/SECURITY.md`: kontrol keamanan
+
+## Claude Code
+
+Konvensi project untuk Claude ada di [CLAUDE.md](CLAUDE.md), guideline di
+`.ai/guidelines/`, dan skill project di `.ai/skills/` (disalin ke
+`.claude/skills/`): laravel-feature, code-standards, security-review,
+validation-and-errors, ui-and-branding, seo-page, testing, deployment,
+project-setup.
