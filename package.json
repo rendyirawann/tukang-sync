@@ -4,9 +4,11 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "build:beranda": "tailwindcss -i resources/css/beranda.css -o public/assets/css/beranda.css --minify"
     },
     "devDependencies": {
+        "@tailwindcss/cli": "^4.3.5",
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.11.0",
         "chokidar": "^5.0.0",
