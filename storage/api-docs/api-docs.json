@@ -1,8 +1,8 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Transaksi Pekerjaan API",
-        "description": "API untuk aplikasi **Transaksi Pekerjaan** (SaaS) — catatan proyek konstruksi:\nRAB per bangunan/lantai/ruangan, kebutuhan material, progres, arus kas,\ndan perhitungan bagi hasil.\n\n### Tim (multi-tenant)\nSetiap akun adalah anggota satu **tim**, dikenali lewat **kode tim** 4\nkarakter (bagian URL `domain/KODE/login`). Semua data yang dibaca dan\nditulis lewat API otomatis milik tim akun yang login; data tim lain tidak\npernah terlihat.\n\n### Alur autentikasi\n1. `POST /api/auth/login` dengan kode tim + email + password → `access_token`.\n2. Kirim `Authorization: Bearer <access_token>` untuk semua endpoint lain.\n3. Opsional: `POST /api/auth/biometric/enable` → `biometric_token` untuk\n   login sidik jari lewat `POST /api/auth/biometric/login`.\n\n### Status langganan\n- Tim yang pembayarannya belum dikonfirmasi: `403 TEAM_PENDING`.\n- Tim yang ditangguhkan: `403 TEAM_SUSPENDED`.\n- Masa langganan habis: data tetap bisa DIBACA, tetapi permintaan yang\n  mengubah data dijawab `402 SUBSCRIPTION_EXPIRED`.\n- Akun peran *viewer* hanya bisa membaca (`403 FORBIDDEN` untuk menulis).\n\n### Aturan angka\nNilai uang adalah **rupiah bulat** (integer). Persentase dikirim sebagai\nangka desimal biasa, mis. `1.75` untuk 1,75%. ID akun berupa UUID (string).",
+        "title": "Tukangsync API",
+        "description": "API untuk aplikasi **Tukangsync** (SaaS) — catatan proyek konstruksi:\nRAB per bangunan/lantai/ruangan, kebutuhan material, progres, arus kas,\ndan perhitungan bagi hasil.\n\n### Tim (multi-tenant)\nSetiap akun adalah anggota satu **tim**, dikenali lewat **kode tim** 4\nkarakter (bagian URL `domain/KODE/login`). Semua data yang dibaca dan\nditulis lewat API otomatis milik tim akun yang login; data tim lain tidak\npernah terlihat.\n\n### Alur autentikasi\n1. `POST /api/auth/login` dengan kode tim + email + password → `access_token`.\n2. Kirim `Authorization: Bearer <access_token>` untuk semua endpoint lain.\n3. Opsional: `POST /api/auth/biometric/enable` → `biometric_token` untuk\n   login sidik jari lewat `POST /api/auth/biometric/login`.\n\n### Status langganan\n- Tim yang pembayarannya belum dikonfirmasi: `403 TEAM_PENDING`.\n- Tim yang ditangguhkan: `403 TEAM_SUSPENDED`.\n- Masa langganan habis: data tetap bisa DIBACA, tetapi permintaan yang\n  mengubah data dijawab `402 SUBSCRIPTION_EXPIRED`.\n- Akun peran *viewer* hanya bisa membaca (`403 FORBIDDEN` untuk menulis).\n\n### Aturan angka\nNilai uang adalah **rupiah bulat** (integer). Persentase dikirim sebagai\nangka desimal biasa, mis. `1.75` untuk 1,75%. ID akun berupa UUID (string).",
         "version": "2.0.0"
     },
     "servers": [
@@ -1326,7 +1326,7 @@
                                                 },
                                                 "app": {
                                                     "type": "string",
-                                                    "example": "Transaksi Pekerjaan"
+                                                    "example": "Tukangsync"
                                                 },
                                                 "time": {
                                                     "type": "string",
@@ -3770,7 +3770,7 @@
                     "Laporan"
                 ],
                 "summary": "Rekap tabel kegiatan",
-                "description": "Tabel rekap semua kegiatan dengan kolom seperti di Excel \"Transaksi Pekerjaan\", plus baris TOTAL. Dipakai layar Laporan di mobile.",
+                "description": "Tabel rekap semua kegiatan dengan kolom seperti di Excel \"Taksasi Pekerjaan\", plus baris TOTAL. Dipakai layar Laporan di mobile.",
                 "operationId": "laporanRekapKegiatan",
                 "parameters": [
                     {
