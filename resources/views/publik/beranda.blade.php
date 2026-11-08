@@ -69,7 +69,7 @@
 
 {{-- ============ NAVBAR ============ --}}
 <header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur-md">
-    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
+    <div class="mx-auto flex h-16 max-w-full items-center justify-between gap-4 px-5 sm:px-8">
         <a href="{{ route('beranda') }}" class="flex items-center gap-2.5">
             <img src="{{ $logo }}" alt="{{ config('app.name') }}" width="34" height="34" class="size-[34px] rounded-lg">
             <span class="text-lg font-extrabold tracking-tight text-navy-900">Tukang<span class="text-gold-600">sync</span></span>
@@ -103,7 +103,7 @@
 <section class="relative overflow-hidden border-b border-slate-200">
     <div class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60rem_30rem_at_85%_-10%,var(--color-navy-50),transparent),radial-gradient(40rem_24rem_at_0%_110%,var(--color-gold-50),transparent)]" aria-hidden="true"></div>
 
-    <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-5 py-14 sm:px-8 lg:grid-cols-12 lg:gap-10 lg:py-20">
+    <div class="mx-auto grid max-w-full grid-cols-1 items-center gap-12 px-5 py-14 sm:px-8 lg:grid-cols-12 lg:gap-10 lg:py-20">
 
         {{-- Kiri: proposisi nilai + akses tim --}}
         <div class="min-w-0 space-y-8 lg:col-span-5">
@@ -215,7 +215,7 @@
 
 {{-- ============ FITUR ============ --}}
 <section id="fitur" class="scroll-mt-16 border-b border-slate-200 bg-slate-50/70 py-20">
-    <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="mx-auto max-w-full px-5 sm:px-8">
         <div class="mb-14 max-w-2xl">
             <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gold-600">Fitur lengkap</p>
             <h2 class="text-2xl font-extrabold tracking-tight text-navy-900 sm:text-4xl">Semua yang dibutuhkan untuk mencatat proyek</h2>
@@ -298,7 +298,7 @@
 
 {{-- ============ KALKULATOR ============ --}}
 <section id="kalkulator" class="scroll-mt-16 border-b border-slate-200 bg-white py-20">
-    <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-5 sm:px-8 lg:grid-cols-12">
+    <div class="mx-auto grid max-w-full grid-cols-1 items-center gap-10 px-5 sm:px-8 lg:grid-cols-12">
         <div class="min-w-0 space-y-4 lg:col-span-5">
             <p class="text-xs font-bold uppercase tracking-wider text-gold-600">Simulasi perhitungan otomatis</p>
             <h2 class="text-2xl font-extrabold tracking-tight text-navy-900 sm:text-4xl">Dari ukuran langsung jadi daftar belanja material.</h2>
@@ -345,7 +345,7 @@
 
 {{-- ============ HARGA ============ --}}
 <section id="harga" class="scroll-mt-16 border-b border-slate-200 bg-slate-50/70 py-20">
-    <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="mx-auto max-w-full px-5 sm:px-8">
         <div class="mx-auto mb-12 max-w-xl text-center">
             <p class="mb-2 text-xs font-bold uppercase tracking-wider text-gold-600">Harga</p>
             <h2 class="text-2xl font-extrabold tracking-tight text-navy-900 sm:text-4xl">Pilih paket</h2>
@@ -397,7 +397,7 @@
 
 {{-- ============ CTA ============ --}}
 <section class="bg-gradient-to-br from-navy-900 via-navy-600 to-navy-800 py-16 text-white">
-    <div class="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 sm:px-8 md:flex-row md:items-center">
+    <div class="mx-auto flex max-w-full flex-col items-start justify-between gap-6 px-5 sm:px-8 md:flex-row md:items-center">
         <div>
             <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Mulai catat proyek pertama Anda hari ini.</h2>
             <p class="mt-2 text-navy-100">Daftar dalam dua menit, dapatkan kode tim, dan ajak mandor Anda bergabung.</p>
@@ -410,7 +410,7 @@
 
 {{-- ============ FOOTER ============ --}}
 <footer class="bg-white py-10">
-    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 text-xs text-slate-500 sm:flex-row sm:px-8">
+    <div class="mx-auto flex max-w-full flex-col items-center justify-between gap-4 px-5 text-xs text-slate-500 sm:flex-row sm:px-8">
         <div class="flex items-center gap-2">
             <img src="{{ $logo }}" alt="" width="20" height="20" class="size-5 rounded" loading="lazy">
             <span>&copy; {{ now()->year }} {{ config('app.name') }}. All rights reserved.</span>
